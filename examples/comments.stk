@@ -1,0 +1,11 @@
+~
+
+jstack supports two forms of comments.
+
+The first is like this one.
+A multi-line thing, beginning and ending with the tilde character.
+
+~
+
+; The other is like this.
+; A single line beginning with a semi-colon, and ending at the newline character.

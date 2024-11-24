@@ -1,0 +1,31 @@
+~
+jstack does *not* have booleans.
+Rather, the symbol type is used for that purpose.
+
+The ? operator can be used to call something, and then
+cast the top level value on the stack to a symbol of:
+true, false, or nil.
+
+This same casting is used by some stdlib functions,
+such as for `if`, `for`, etc.
+~
+
+; Anything other than a false or nil symbol will be true:
+print! {21}?
+
+; The false symbol is false.
+print! {`false`}?
+
+; A nil symbol will be cast to false.
+print! {`nil`}?
+
+?{
+	`false`
+}
+print!
+
+equal? 10 "10"
+print!
+
+equal? 10 10
+print!

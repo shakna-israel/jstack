@@ -1,0 +1,45 @@
+~
+Casting from one type to another is primarily
+done by the stdlib function `to`.
+
+It takes a symbol and a target from the stack,
+and either converts it and pushes the result, or pushes a Type error.
+~
+
+to! symbol "Hello, World!"
+assert! is! symbol dupe!
+print!
+
+to! string i39
+assert! is! string dupe!
+print!
+
+to! integer f10.3
+assert! is! integer dupe!
+print!
+
+to! float "10.33333"
+assert! is! float dupe!
+print!
+
+to! error "Type"
+assert! is! error dupe!
+print!
+
+"1.2"
+to! float
+assert! is! float dupe!
+to! integer
+assert! is! integer dupe!
+to! string
+assert! is! string dupe!
+to! symbol
+assert! is! symbol dupe!
+to! error
+assert! is! error dupe!
+print!
+
+"print! [hi]"
+to! expression
+assert! is! expression dupe!
+!

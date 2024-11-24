@@ -1,0 +1,29 @@
+; Fetch the help information from a symbol and print it:
+help
+print! help!
+
+print!
+
+; And you can fetch help from an expression, too!
+{
+	print! "Bloop."
+}
+print! help!
+
+print!
+
+
+; You can install help onto your own expressions:
+{
+	"A function..."
+}
+describe! "Help stuff for my function..."
+
+print! help!
+
+print!
+
+; You can install help onto just about any value:
+i10
+describe! "A constant!"
+print! help!

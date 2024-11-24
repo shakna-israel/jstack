@@ -1,0 +1,262 @@
+~
+
+jstack supports two forms of comments.
+
+The first is like this one.
+A multi-line thing, beginning and ending with the tilde character.
+
+We'll mostly be using this form, throughout.
+
+~
+
+; The other comment is like this.
+; A single line beginning with a semi-colon, and ending at the newline character.
+
+~
+jstack is a stack-based language, with a scoped environment.
+
+To put it more simply, when you write something, it is placed on the stack:
+~
+
+i10
+
+~
+Then, when you want to lookup from the environment and call something, you use the ! symbol:
+~
+
+! print
+
+~
+The parser allows you to end a symbol with !, and reads lines from right to left,
+to make it simpler to write some things.
+~
+
+print! i10
+
+~
+Expressions are a first-class type. Meaning you place them onto the stack, before you
+give them a name. And you don't need to give them a name to call them.
+
+You write them by enclosing some other code either between `{...}` or `(...)`.
+You can happily nest them, too.
+~
+
+{
+	print! "Hello, there!"
+}
+print!
+
+
+~
+You call expressions the same way, by using an exclamation:
+~
+
+!{
+	print! "I'm an expression!"
+}
+
+~
+You can assign things from the stack to the environment with
+the `let` function, and get them with either the `get` function,
+or the `$` shorthand:
+
+Both `let` and `get` expect the name to be a symbol type.
+~
+
+let! x i21
+
+print! get! x
+print! x$
+
+~
+When you call an expression, it receives a new environment.
+This means that anything you set inside it, won't normally be
+shown outside it.
+~
+
+print! x$
+!{
+	let! x i24
+}
+
+print! x$
+
+~
+jstack has a handful of types, as well as the expressions you've
+already seen.
+~
+
+i24; Integers
+f26.24 ; Floats
+`thing` ; Symbols.
+"Hello!" ; Strings
+
+throw! RuntimeError ; Errors
+
+; "foreign" types for things grabbed from language extensions, like Lua.
+
+; "builtin" for functions provided by the standard libraries, and some language extensions.
+
+~
+Strings can be written several different ways:
+
+"..."
+
+'...'
+
+[...]
+~
+
+"Hello!"
+
+'Hello!'
+
+[Hello!]
+
+~
+Symbols can also be written differently:
+
+bareword
+
+`...`
+
+%...%
+~
+
+print ; A bare symbol. This breaks on whitespace. If you need that, use one of the other two forms.
+
+`print` ; An enclosed symbol.
+
+%print% ; An enclosed symbol.
+
+~
+You can import your own files.
+Every import happens inside a fresh environment,
+and the stack is discarded.
+~
+
+import! hello
+
+~
+An import has the environment names prepended with `<name>.`
+~
+
+import! stdlib
+assert! stdlib.print$
+
+~
+Using Lua to extend the language is simple.
+jstack can import Lua modules, the same way you can import your own files:
+~
+
+import! string
+print! string.lower! "HELLO"
+
+~
+A gotcha for newcomers, though.
+jstack does *not* have boolean types!
+~
+
+equal? i12 i12
+print!
+
+~
+The `false` and `nil` symbols are used by various parts of the standard library.
+However, they are still just *symbols*, not booleans.
+
+The ? symbol can be used to call something, and then cast the top-level value
+on the stack to either `true` or `false` symbols.
+~
+
+~
+You can make long symbols with whitespace in them, by using the `...` syntax.
+This can let you make more exact names for things in the environment, too.
+~
+
+let! `THIS IS MY PRINT` print$
+
+! get! `THIS IS MY PRINT` "Hello!"
+
+~
+So far, we've only used the ! symbol for calling.
+However, you can also use : if you want.
+
+They are identical.
+~
+
+let: x i24
+print: x$
+
+~
+To learn more about a function, you can use the `help` function from the
+standard library.
+
+You can give it either a symbol to lookup, or an expression.
+It will place a string of some sort onto the stack.
+The string is meant to be read by a human, so there's no specific format
+you can automate against.
+~
+
+help! print
+
+~
+To store help information into an expression, we use the `describe` function.
+~
+
+{
+	"A function..."
+}
+describe! "Help stuff for my function..."
+
+print! help!
+
+~
+`describe` will leave the expression on the stack, to make it easier to document
+things as you work.
+~
+
+~
+Casting from one type to another is primarily
+done by the stdlib function `to`.
+
+It takes a symbol and a target from the stack,
+and either converts it and pushes the result, or pushes a Type error.
+~
+
+to! symbol "Hello, World!"
+assert! is! symbol dupe!
+print!
+
+to! string i39
+assert! is! string dupe!
+print!
+
+to! integer f10.3
+assert! is! integer dupe!
+print!
+
+to! float "10.33333"
+assert! is! float dupe!
+print!
+
+to! error "Type"
+assert! is! error dupe!
+print!
+
+"1.2"
+to! float
+assert! is! float dupe!
+to! integer
+assert! is! integer dupe!
+to! string
+assert! is! string dupe!
+to! symbol
+assert! is! symbol dupe!
+to! error
+assert! is! error dupe!
+print!
+
+"print! [hi]"
+to! expression
+assert! is! expression dupe!
+!

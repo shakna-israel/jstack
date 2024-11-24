@@ -1,0 +1,16 @@
+; Add the stdlib to the current scope:
+assert! import! stdlib
+
+; Imports have the name used added to the start of their symbol names.
+assert! stdlib.print$
+
+; The stack is not preserved between imports.
+; However, the environment from the import
+; is added as a new scope.
+import: hello1
+
+; These symbols are identical:
+; ! :
+
+; This symbol calls, and casts top of stack to `true` or `false` symbols:
+; ?

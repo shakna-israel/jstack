@@ -1,0 +1,15 @@
+~
+To turn something on the stack from a symbol into a reference to
+something in the environment, we use `get`:
+
+A `!` call automatically does this, but you can do it for everything
+yourself as well.
+
+The `$` call is equivalent to a call with `get`.
+~
+
+print
+get!
+print!
+
+print! print$

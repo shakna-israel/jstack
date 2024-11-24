@@ -1,0 +1,37 @@
+; Errors are just another type.
+; They push to the stack, where you can handle or ignore them, as needed.
+
+{
+	"Never called."
+}
+; An expression can't be converted to an expression.
+to! expression
+assert! is! error
+
+import! stderror
+
+; The stderror library has a function to generate errors on the fly:
+stderror.throw! Type
+assert! is! error dupe!
+print!
+
+clear!
+print!
+
+~
+error<Import> is pushed after importing something that doesn't exist:
+(So that you can easily do fallbacks, etc.)
+
+If fallbacks aren't needed, then a good idiom is:
+
+assert! import! thing
+~
+
+import! bad
+print!
+
+clear!
+print!
+
+; However, error<Critical> errors instantly explode:
+throw! Critical

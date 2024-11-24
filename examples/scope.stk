@@ -1,0 +1,21 @@
+~
+jstack is scoped.
+Every time you call an expression, a new environment is added,
+and after the call it is removed.
+
+Imports also add a new environment, and so are also local to their current scope.
+~
+
+let! x i21
+print! x$
+
+!{
+	let! x i12
+	!{
+		let! x i6
+		print! x$
+	}
+	print! x$
+}
+
+print! x$

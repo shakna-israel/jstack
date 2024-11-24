@@ -1,0 +1,11 @@
+; You can also import anything that you would be able to `require` with Lua:
+import! string
+string.lower! "HELLO"
+print!
+
+print!
+
+; Some basic help information is provided.
+; Not generally adequate, but enough to warn you.
+get! string.lower
+print! help!

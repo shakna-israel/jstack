@@ -1,0 +1,15 @@
+~
+Strings can be escaped with the \ character.
+If there is no special escape, then it will become literally the next character.
+
+e.g. \" becomes "
+
+However, there are a handful of special escapes:
+
+* \n becomes the newline character.
+* \r becomes the carriage return character.
+~
+
+print! "Hello\nWorld!"
+
+print! "Hello \\ World!"
