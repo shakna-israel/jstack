@@ -72,4 +72,6 @@ You will need:
 
 * lua5.3 (PUC)
 
+* lua5.2 (PUC)
+
 * lua5.1 (PUC)
