@@ -175,6 +175,9 @@ do
 			['~'] = '~',
 		}
 
+		local hex_escape = {}
+		local int_escape = {}
+
 		for i=1, #content do
 			local c = content:sub(i, i)
 
@@ -196,12 +199,54 @@ do
 					in_comment = false
 				end
 			elseif in_string then
-				if token[#token] == '\\' then
-					-- TODO: Escaping
-					if c == 'n' then
+				-- Process a hex escape: \xDD
+				if #hex_escape > 0 then
+					if #hex_escape > 2 then
+						table.remove(token, #token)
+						local v = (concat or table.concat)(hex_escape)
+						while #hex_escape > 0 do
+							table.remove(hex_escape, #hex_escape)
+						end
+						token[#token] = string.char(tonumber(v, 16) or 0)
+						token[#token + 1] = c
+					else
+						hex_escape[#hex_escape + 1] = c
+					end
+				-- Process a decimal escape: \DDD
+				elseif #int_escape > 0 then
+					if #int_escape > 2 then
+						table.remove(token, #token)
+						local v = (concat or table.concat)(int_escape)
+						while #int_escape > 0 do
+							table.remove(int_escape, #int_escape)
+						end
+						token[#token] = string.char(tonumber(v, 10) or 0)
+						token[#token + 1] = c
+					else
+						int_escape[#int_escape + 1] = c
+					end
+				elseif token[#token] == '\\' then
+					-- Escaping:
+					if c == 'a' then
+						token[#token] = '\a'
+					elseif c == 'b' then
+						token[#token] = '\b'
+					elseif c == 'f' then
+						token[#token] = '\f'
+					elseif c == 'n' then
 						token[#token] = '\n'
 					elseif c == 'r' then
 						token[#token] = '\r'
+					elseif c == 't' then
+						token[#token] = '\t'
+					elseif c == 'v' then
+						token[#token] = '\v'
+					elseif c == 'x' then
+						-- \xAA for hex:
+						hex_escape[#hex_escape + 1] = "0"
+					elseif tonumber(c) ~= nil and tonumber(c) > -1 and tonumber(c) < 10 then
+						-- \ddd for decimal.
+						int_escape[#int_escape + 1] = "0"
 					else
 						token[#token] = c
 					end

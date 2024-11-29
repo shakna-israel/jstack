@@ -6,10 +6,23 @@ e.g. \" becomes "
 
 However, there are a handful of special escapes:
 
+* \a
+* \b
+* \f
+* \t
+* \v
 * \n becomes the newline character.
 * \r becomes the carriage return character.
+
+* \xYY where YY is a hex encoding, turns into a hex character.
+
+* \DDD where DDD is a triple-digit 0-padded decimal number, turns into the equivalent character.
 ~
 
 print! "Hello\nWorld!"
 
 print! "Hello \\ World!"
+
+print! "Hex: Hello\x0AWorld!"
+
+print! "Decimal: Hello\010World!"
