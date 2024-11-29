@@ -1202,7 +1202,7 @@ two values are comparable.]]
 			token.content[k] = v
 		end
 		token.content.type = "float"
-		token.content.value = tonumber(value)
+		token.content.value = tonumber(value) or 0.0
 
 		return token
 	end
