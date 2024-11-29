@@ -36,7 +36,7 @@ Then the [import_lua.stk](examples/import_lua.stk) example is probably worth a v
 
 ## License
 
-TODO
+3-Clause BSD, as of writing. See [LICENSE.md](LICENSE.md) for legally binding text.
 
 ---
 
