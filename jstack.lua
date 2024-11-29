@@ -388,6 +388,9 @@ do
 	end
 
 	lib.make_builtin = function(funcname, chunkname, functor, helpdoc)
+		local funcname = funcname or "unknown"
+		local chunkname = chunkname or "<unknown>"
+		local helpdoc = helpdoc or string.format("See %s for %s.", chunkname, funcname)
 		return {
 			line = -1,
 			char = -1,
@@ -397,7 +400,7 @@ do
 				type = "builtin",
 				value = functor,
 			},
-			help = helpdoc or nil
+			help = helpdoc
 		}
 	end
 

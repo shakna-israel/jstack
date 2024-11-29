@@ -14,8 +14,9 @@ do
 	assert(s.char == -1)
 	assert(s.content)
 	assert(s.content.type == "builtin")
-	assert(s.content.raw == "<nil.nil>")
+	assert(s.content.raw == "<<unknown>.unknown>")
 	assert(s.content.value == functor)
+	assert(s.help == "See <unknown> for unknown.")
 end
 
 do
@@ -29,7 +30,7 @@ do
 	assert(s.char == -1)
 	assert(s.content)
 	assert(s.content.type == "builtin")
-	assert(s.content.raw == "<nil.nil>")
+	assert(s.content.raw == "<<unknown>.unknown>")
 	assert(s.content.value == functor)
 	assert(s.help == "lol")
 end
@@ -45,7 +46,7 @@ do
 	assert(s.char == -1)
 	assert(s.content)
 	assert(s.content.type == "builtin")
-	assert(s.content.raw == "<nil.foo>")
+	assert(s.content.raw == "<<unknown>.foo>")
 	assert(s.content.value == functor)
 	assert(s.help == "lol")
 end
