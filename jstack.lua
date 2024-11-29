@@ -415,6 +415,9 @@ do
 		if v == nil then
 			return lib.make_nil(caller)
 		elseif type(v) == "table" then
+			-- TODO: Convert interrupt representation
+			-- TODO: Convert error representation
+
 			-- Convert to expression
 			local tree = lib.parse("{}", caller.chunk, caller.line, caller.char)
 			tree.chunk = caller.chunk

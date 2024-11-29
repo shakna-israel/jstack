@@ -3,10 +3,6 @@ assert(jstack)
 
 assert(jstack.to_lua)
 
--- jstack.to_lua(value)
-
--- TODO
-
 do
 	local s = jstack.make_nil(nil)
 	assert(s)
