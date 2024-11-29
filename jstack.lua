@@ -1271,7 +1271,7 @@ two values are comparable.]]
 			token.content[k] = v
 		end
 		token.content.type = "string"
-		token.content.value = msg
+		token.content.value = msg or ""
 
 		return token
 	end

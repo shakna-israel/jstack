@@ -3,6 +3,18 @@ assert(jstack)
 
 assert(jstack.make_string)
 
--- jstack.make_string(caller, msg)
+do
+	local s = jstack.make_string(nil, nil)
+	assert(s)
+	assert(s.content)
+	assert(s.content.type == "string")
+	assert(s.content.value == "")
+end
 
--- TODO
+do
+	local s = jstack.make_string(nil, "hello world")
+	assert(s)
+	assert(s.content)
+	assert(s.content.type == "string")
+	assert(s.content.value == "hello world")
+end
