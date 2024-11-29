@@ -8,19 +8,13 @@ An easy to use, stack-based, programming language.
 
 	print! "Hello, World!"
 
-The parser is right-to-left on lines, making it easier to read.
+The parser is right-to-left on lines, and exclamations jump one to the left, making it easier to read.
 
-However, the above is functionally equivalent to:
+Meaning that the above is functionally equivalent to:
 
-	"Hello, World!"
-	print
-	!
-
-Push a string to the stack.
-
-Push a symbol.
-
-Lookup and call the symbol from the environment.
+	"Hello, World!" ; Push a string to the stack.
+	print ; Push a symbol.
+	! ; Lookup and call the symbol from the environment.
 
 ---
 
