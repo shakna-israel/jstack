@@ -1,6 +1,7 @@
 image: debian/stable
 packages:
-  - build-base
+  - findutils
+  - build-essential
   - luajit
   - lua5.1
   - lua5.2
