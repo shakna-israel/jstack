@@ -54,6 +54,8 @@ Example, for Debian-based systems:
 
 ## Testing
 
+[![builds.sr.ht status](https://builds.sr.ht/~shakna/jstack.svg)](https://builds.sr.ht/~shakna/jstack?)
+
 To run the testsuite, from a \*nix platform, run `make`.
 
 	make -j4
