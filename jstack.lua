@@ -1185,7 +1185,7 @@ two values are comparable.]]
 			token.content[k] = v
 		end
 		token.content.type = "integer"
-		token.content.value = math.floor(tonumber(value))
+		token.content.value = math.floor(tonumber(value) or 0)
 
 		return token
 	end
