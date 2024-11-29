@@ -1219,7 +1219,7 @@ two values are comparable.]]
 			token.content[k] = v
 		end
 		token.content.type = "symbol"
-		token.content.value = value
+		token.content.value = tostring(value) or ""
 
 		return token
 	end
@@ -1271,7 +1271,7 @@ two values are comparable.]]
 			token.content[k] = v
 		end
 		token.content.type = "string"
-		token.content.value = msg or ""
+		token.content.value = tostring(msg) or ""
 
 		return token
 	end
