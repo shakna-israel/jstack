@@ -376,8 +376,12 @@ do
 
 	lib.from_lua = function(caller, v, k, name)
 		-- TODO: Convert a Lua primitive to a jstack value.
+		local k = k or "?"
+		local name = name or "<unknown>"
 
-		if type(v) == "table" then
+		if v == nil then
+			return lib.make_nil(caller)
+		elseif type(v) == "table" then
 			-- TODO: Convert to expression?
 		elseif type(v) == "function" then
 			return lib.make_builtin(k, name, (function(lua_func)
@@ -422,7 +426,7 @@ do
 			end
 		elseif type(v) == "boolean" then
 			return lib.make_symbol(caller, tostring(v))
-		elseif type(v) == "userdata" then
+		elseif type(v) == "userdata" or type(v) == "cdata" then
 			return lib.make_foreign(caller, v)
 		end
 	end

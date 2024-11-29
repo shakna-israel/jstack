@@ -68,6 +68,8 @@ You will need:
 
 * find (POSIX standard)
 
+* xargs (GNU)
+
 * luajit (preferably Luajit 2.0)
 
 * lua5.4 (PUC)
