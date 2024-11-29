@@ -413,15 +413,17 @@ do
 		elseif type(v) == "string" then
 			return lib.make_string(caller, v)
 		elseif type(v) == "number" then
-			if math.floor(v) == v then
-				-- TODO: Integer
+			if (math.type and math.type(v) == "integer") or (math.floor(v) == v) then
+				-- Integer
+				return lib.make_integer(caller, v)
 			else
-				-- TODO: Float
+				-- Float
+				return lib.make_float(caller, v)
 			end
 		elseif type(v) == "boolean" then
 			return lib.make_symbol(caller, tostring(v))
 		elseif type(v) == "userdata" then
-			-- TODO: foreign type
+			return lib.make_foreign(caller, v)
 		end
 	end
 
@@ -1096,6 +1098,8 @@ two values are comparable.]]
 
 	lib.make_nil = function(caller)
 		local token = {}
+		local caller = caller or {}
+		caller.content = caller.content or {}
 		for k, v in pairs(caller) do
 			token[k] = v
 		end
@@ -1111,6 +1115,8 @@ two values are comparable.]]
 
 	lib.make_integer = function(caller, value)
 		local token = {}
+		local caller = caller or {}
+		caller.content = caller.content or {}
 		for k, v in pairs(caller) do
 			token[k] = v
 		end
@@ -1126,6 +1132,8 @@ two values are comparable.]]
 
 	lib.make_float = function(caller, value)
 		local token = {}
+		local caller = caller or {}
+		caller.content = caller.content or {}
 		for k, v in pairs(caller) do
 			token[k] = v
 		end
@@ -1141,6 +1149,8 @@ two values are comparable.]]
 
 	lib.make_symbol = function(caller, value)
 		local token = {}
+		local caller = caller or {}
+		caller.content = caller.content or {}
 		for k, v in pairs(caller) do
 			token[k] = v
 		end
@@ -1154,8 +1164,27 @@ two values are comparable.]]
 		return token
 	end
 
+	lib.make_foreign = function(caller, value)
+		local token = {}
+		local caller = caller or {}
+		caller.content = caller.content or {}
+		for k, v in pairs(caller) do
+			token[k] = v
+		end
+		token.content = {}
+		for k, v in pairs(caller.content) do
+			token.content[k] = v
+		end
+		token.content.type = "foreign"
+		token.content.value = value
+
+		return token
+	end
+
 	lib.make_error = function(caller, msg, trace)
 		local token = {}
+		local caller = caller or {}
+		caller.content = caller.content or {}
 		for k, v in pairs(caller) do
 			token[k] = v
 		end
@@ -1172,6 +1201,8 @@ two values are comparable.]]
 
 	lib.make_string = function(caller, msg)
 		local token = {}
+		local caller = caller or {}
+		caller.content = caller.content or {}
 		for k, v in pairs(caller) do
 			token[k] = v
 		end
@@ -1211,6 +1242,9 @@ two values are comparable.]]
 				stack[#stack + 1] = lib.make_symbol(caller, "true")
 				return true
 			end
+		elseif target.content.type == "error" then
+			stack[#stack + 1] = lib.make_symbol(caller, "false")
+			return true
 		else
 			stack[#stack + 1] = lib.make_symbol(caller, "true")
 			return true
