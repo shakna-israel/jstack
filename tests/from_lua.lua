@@ -104,19 +104,74 @@ do
 	assert(stack[2].content.value == "false")
 end
 
+do
+	local t = {1, 2, 3}
+	local s = jstack.from_lua(nil, t, nil, nil)
+	assert(s)
+	assert(s.chunk == "<unknown>")
+	assert(s.content)
+	assert(s.content.type == "expression")
+	assert(type(s.content.value) == "table")
+	for i=1, #s.content.value do
+		assert(s.content.value[i].content.type == "integer")
+		assert(s.content.value[i].content.value == i)
+	end
+end
 
--- TODO: table
+do
+	local t = {a=21, b=23}
+	local s = jstack.from_lua(nil, t, nil, nil)
+	assert(s)
+	assert(s.chunk == "<unknown>")
+	assert(s.content)
+	assert(s.content.type == "expression")
+	assert(type(s.content.value) == "table")
+	for i=1, #s.content.value do
+		assert(s.content.value[i].content.type == "expression")
+		assert(type(s.content.value[i].content.value) == "table")
+
+		assert(s.content.value[i].content.value[1].content.type == "string")
+
+		assert(s.content.value[i].content.value[1].content.value == "a" or s.content.value[i].content.value[1].content.value == "b")
+
+		assert(s.content.value[i].content.value[2].content.type == "integer")
+
+		assert(s.content.value[i].content.value[2].content.value == 21 or s.content.value[i].content.value[2].content.value == 23)
+	end
+end
 
 -- userdata test can only run under Luajit.
 if type(jit) == 'table' then
 	local ffi = require "ffi"
 	ffi.cdef[[
 	void *malloc(size_t size);
-	 void free(void *ptr);
+	void free(void *ptr);
 	]]
-	local p = ffi.C.malloc(10)
-	assert(p)
-	assert(type(p) == "cdata")
 
-	ffi.C.free(p)
+	-- cdata
+	do
+		local p = ffi.C.malloc(10)
+		assert(p)
+		assert(type(p) == "cdata")
+
+
+		local s = jstack.from_lua(nil, p, nil, nil)
+		assert(s)
+		assert(s.content)
+		assert(s.content.type == "foreign")
+		assert(s.content.value == p)
+
+		ffi.C.free(p)
+	end
+
+	-- userdata
+	do
+		assert(type(ffi.C) == "userdata")
+		local s = jstack.from_lua(nil, ffi.C, nil, nil)
+		assert(s)
+		assert(s.content)
+		assert(s.content.type == "foreign")
+		assert(s.content.value == ffi.C)
+	end
+
 end

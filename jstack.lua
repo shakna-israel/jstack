@@ -74,6 +74,33 @@ do
 		end
 	end
 
+	local isarray = function(value)
+		if type(value) ~= "table" then
+			return false
+		end
+
+		local ikeys = {}
+		local keys = {}
+		for idx, _ in ipairs(value) do
+			ikeys[#ikeys + 1] = idx
+		end
+		for k, _ in pairs(value) do
+			keys[#keys + 1] = k
+		end
+
+		if #ikeys ~= #keys then
+			return false
+		end
+
+		for i = 1, #keys do
+			if keys[i] ~= ikeys[i] then
+				return false
+			end
+		end
+
+		return true
+	end
+
 	lib.parsevalue = function(token, line, char)
 		-- Create objects from literals
 
@@ -379,10 +406,36 @@ do
 		local k = k or "?"
 		local name = name or "<unknown>"
 
+		local caller = caller or {}
+		caller.content = caller.content or {}
+
 		if v == nil then
 			return lib.make_nil(caller)
 		elseif type(v) == "table" then
-			-- TODO: Convert to expression?
+			-- Convert to expression
+			local tree = lib.parse("{}", caller.chunk, caller.line, caller.char)
+			tree.chunk = caller.chunk
+			tree.line = caller.line
+			tree.char = caller.char
+			if isarray(v) then
+				-- Expression as list:
+				local t = {}
+				for i=1, #v do
+					t[#t + 1] = lib.from_lua(caller, v[i], k, name)
+				end
+
+				tree[1].content.value = t
+				return tree[1]
+			else
+				-- Expression as list of pairs:
+				local t = {}
+				for kname, cellv in pairs(v) do
+					t[#t + 1] = lib.from_lua(caller, {kname, cellv}, k, name)
+				end
+				tree[1].content.value = t
+				return tree[1]
+			end
+
 		elseif type(v) == "function" then
 			return lib.make_builtin(k, name, (function(lua_func)
 				return function(caller, env, stack)
