@@ -3,6 +3,65 @@ assert(jstack)
 
 assert(jstack.make_builtin)
 
--- jstack.make_builtin(funcname, chunkname, functor, helpdoc)
+do
+	local functor = function(caller, env, stack)
+		return true
+	end
 
--- TODO
+	local s = jstack.make_builtin(nil, nil, functor, nil)
+	assert(s.chunk == "<unknown>")
+	assert(s.line == -1)
+	assert(s.char == -1)
+	assert(s.content)
+	assert(s.content.type == "builtin")
+	assert(s.content.raw == "<nil.nil>")
+	assert(s.content.value == functor)
+end
+
+do
+	local functor = function(caller, env, stack)
+		return true
+	end
+
+	local s = jstack.make_builtin(nil, nil, functor, "lol")
+	assert(s.chunk == "<unknown>")
+	assert(s.line == -1)
+	assert(s.char == -1)
+	assert(s.content)
+	assert(s.content.type == "builtin")
+	assert(s.content.raw == "<nil.nil>")
+	assert(s.content.value == functor)
+	assert(s.help == "lol")
+end
+
+do
+	local functor = function(caller, env, stack)
+		return true
+	end
+
+	local s = jstack.make_builtin("foo", nil, functor, "lol")
+	assert(s.chunk == "<unknown>")
+	assert(s.line == -1)
+	assert(s.char == -1)
+	assert(s.content)
+	assert(s.content.type == "builtin")
+	assert(s.content.raw == "<nil.foo>")
+	assert(s.content.value == functor)
+	assert(s.help == "lol")
+end
+
+do
+	local functor = function(caller, env, stack)
+		return true
+	end
+
+	local s = jstack.make_builtin("foo", "bar", functor, "lol")
+	assert(s.chunk == "bar")
+	assert(s.line == -1)
+	assert(s.char == -1)
+	assert(s.content)
+	assert(s.content.type == "builtin")
+	assert(s.content.raw == "<bar.foo>")
+	assert(s.content.value == functor)
+	assert(s.help == "lol")
+end
