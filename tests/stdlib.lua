@@ -3,8 +3,6 @@ assert(jstack)
 
 assert(jstack.stdlib)
 
--- TODO
-
 assert(type(jstack.stdlib()) == "table")
 
 do

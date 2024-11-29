@@ -488,11 +488,19 @@ do
 	end
 
 	lib.to_lua = function(value)
-		-- TODO: Convert a jstack value into a Lua primitive
+		-- Convert a jstack value into a Lua primitive
 		if value.content.type == "string" then
 			return value.content.value
 		elseif value.content.type == "symbol" then
-			return value.content.value
+			if value.content.value == "nil" then
+				return nil
+			elseif value.content.value == "true" then
+				return true
+			elseif value.content.value == "false" then
+				return false
+			else
+				return value.content.value
+			end
 		elseif value.content.type == "expression" then
 			local r = {}
 			for idx, child in ipairs(value.content.value) do
