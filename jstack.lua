@@ -488,6 +488,10 @@ do
 	end
 
 	lib.to_lua = function(value)
+		if type(value) ~= "table" then
+			return value
+		end
+
 		-- Convert a jstack value into a Lua primitive
 		if value.content.type == "string" then
 			return value.content.value
@@ -508,7 +512,7 @@ do
 			end
 			return r
 		elseif value.content.type == "error" then
-			-- TODO
+			return {"error", value.content.value, lib.to_lua(value.content.extra)}
 		elseif value.content.type == "integer" then
 			return value.content.value
 		elseif value.content.type == "float" then
@@ -516,7 +520,7 @@ do
 		elseif value.content.type == "foreign" then
 			return value.content.value
 		elseif value.content.type == "interrupt" then
-			-- TODO
+			return {"interrupt", value.content.value}
 		else
 			-- TODO: Error
 		end
