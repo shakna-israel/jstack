@@ -293,4 +293,48 @@ do
 	-- TODO: actual behaviour
 end
 
+do
+	local f = jstack.stdlib()['less-than']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['less-than-equal']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['greater-than']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['greater-than-equal']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
 -- TODO: Other functions as we add them.

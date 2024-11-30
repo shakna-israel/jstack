@@ -1110,8 +1110,118 @@ Pushes one of the following:
 			end,
 		[[A function that does exactly nothing.]])
 
-		-- TODO: less-than -> bool
-		-- TODO: greater-than -> bool
+		r['less-than'] = lib.make_builtin('less-than', 'stdlib',
+			function(caller, env, stack)
+				local a = table.remove(stack, #stack) or lib.make_nil(caller)
+				local b = table.remove(stack, #stack) or lib.make_nil(caller)
+
+				if a.content.type ~= 'integer' and a.content.type ~= 'float' then
+					stack[#stack+1] = lib.make_error(a, "Type", caller)
+					return true
+				end
+
+				if b.content.type ~= 'integer' and b.content.type ~= 'float' then
+					stack[#stack+1] = lib.make_error(b, "Type", caller)
+					return true
+				end
+
+				if a.content.type ~= b.content.type then
+					stack[#stack+1] = lib.make_error(b, "Type", caller)
+					return true
+				end
+
+				stack[#stack + 1] = lib.make_symbol(caller, a.content.value < b.content.value)
+				return true
+			end,
+		[[Given two items from the stack, where both are either integer or float,
+pushes a symbol of either `true` or `false`, measuring:
+	first < second
+If the expected types or constraints are not met, pushes an error<Type>.]])
+
+		r['less-than-equal'] = lib.make_builtin('less-than-equal', 'stdlib',
+			function(caller, env, stack)
+				local a = table.remove(stack, #stack) or lib.make_nil(caller)
+				local b = table.remove(stack, #stack) or lib.make_nil(caller)
+
+				if a.content.type ~= 'integer' and a.content.type ~= 'float' then
+					stack[#stack+1] = lib.make_error(a, "Type", caller)
+					return true
+				end
+
+				if b.content.type ~= 'integer' and b.content.type ~= 'float' then
+					stack[#stack+1] = lib.make_error(b, "Type", caller)
+					return true
+				end
+
+				if a.content.type ~= b.content.type then
+					stack[#stack+1] = lib.make_error(b, "Type", caller)
+					return true
+				end
+
+				stack[#stack + 1] = lib.make_symbol(caller, a.content.value <= b.content.value)
+				return true
+			end,
+		[[Given two items from the stack, where both are either integer or float,
+pushes a symbol of either `true` or `false`, measuring:
+	first <= second
+If the expected types or constraints are not met, pushes an error<Type>.]])
+
+		r['greater-than'] = lib.make_builtin('greater-than', 'stdlib',
+			function(caller, env, stack)
+				local a = table.remove(stack, #stack) or lib.make_nil(caller)
+				local b = table.remove(stack, #stack) or lib.make_nil(caller)
+
+				if a.content.type ~= 'integer' and a.content.type ~= 'float' then
+					stack[#stack+1] = lib.make_error(a, "Type", caller)
+					return true
+				end
+
+				if b.content.type ~= 'integer' and b.content.type ~= 'float' then
+					stack[#stack+1] = lib.make_error(b, "Type", caller)
+					return true
+				end
+
+				if a.content.type ~= b.content.type then
+					stack[#stack+1] = lib.make_error(b, "Type", caller)
+					return true
+				end
+
+				stack[#stack + 1] = lib.make_symbol(caller, a.content.value > b.content.value)
+				return true
+			end,
+		[[Given two items from the stack, where both are either integer or float,
+pushes a symbol of either `true` or `false`, measuring:
+	first > second
+If the expected types or constraints are not met, pushes an error<Type>.]])
+
+		r['greater-than-equal'] = lib.make_builtin('greater-than-equal', 'stdlib',
+			function(caller, env, stack)
+				local a = table.remove(stack, #stack) or lib.make_nil(caller)
+				local b = table.remove(stack, #stack) or lib.make_nil(caller)
+
+				if a.content.type ~= 'integer' and a.content.type ~= 'float' then
+					stack[#stack+1] = lib.make_error(a, "Type", caller)
+					return true
+				end
+
+				if b.content.type ~= 'integer' and b.content.type ~= 'float' then
+					stack[#stack+1] = lib.make_error(b, "Type", caller)
+					return true
+				end
+
+				if a.content.type ~= b.content.type then
+					stack[#stack+1] = lib.make_error(b, "Type", caller)
+					return true
+				end
+
+				stack[#stack + 1] = lib.make_symbol(caller, a.content.value >= b.content.value)
+				return true
+			end,
+		[[Given two items from the stack, where both are either integer or float,
+pushes a symbol of either `true` or `false`, measuring:
+	first >= second
+If the expected types or constraints are not met, pushes an error<Type>.]])
+
 		-- TODO: within (range) -> bool
 		-- TODO: find (index) -> bool
 
