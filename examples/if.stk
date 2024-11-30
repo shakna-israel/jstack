@@ -1,0 +1,21 @@
+; The if function takes expressions, and optionally an `else` symbol to add another branch.
+
+if! {false} {
+	print! true
+} else {
+	print! false
+}
+
+if! {true} {
+	print! true
+}
+
+; There's nothing much special about `if`.
+; It's still just a function!
+{print! false}
+; So go ahead and add any processing between the bodies,
+; if you need it.
+; And comments.
+drop! dupe! else
+{print! true}
+if! {true}

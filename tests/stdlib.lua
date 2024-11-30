@@ -227,4 +227,26 @@ do
 	-- TODO: actual behaviour
 end
 
+do
+	local f = jstack.stdlib()['if']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['cond']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
 -- TODO: Other functions as we add them.

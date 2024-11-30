@@ -1343,8 +1343,127 @@ no increment will occur, and that value will be taken instead.]]
 			[[TODO]]
 		)
 
-		-- TODO: if
-		-- TODO: cond
+		r['if'] = lib.make_builtin('if', 'stdlib',
+			function(caller, env, stack)
+				local check = table.remove(stack, #stack)
+				local check_body = table.remove(stack, #stack)
+				if not check_body or check_body.content.type ~= 'expression' then
+					stack[#stack + 1] = lib.make_error(check_body or caller, "Type", caller)
+					return true
+				end
+
+				local else_body = false
+				if stack[#stack] and stack[#stack].content.type == "symbol" and stack[#stack].content.value == "else" then
+					local tmp_else = table.remove(stack, #stack)
+					else_body = table.remove(stack, #stack)
+
+					if not else_body or else_body.content.type ~= 'expression' then
+						stack[#stack + 1] = lib.make_error(tmp_else, "Type", caller)
+						return true
+					end
+				end
+
+				local len = #env
+				env[#env+1] = {}
+
+				local catch = {lib.eval(check.content.value, env, stack)}
+				if not catch[1] then
+					return false, catch[2]
+				end
+				lib.cast_bool(caller, env, stack)
+				local pop = table.remove(stack, #stack)
+				check_value = pop.content.value == "true"
+
+				if check_value then
+					local catch = {lib.eval(check_body.content.value, env, stack)}
+					if not catch[1] then
+						return false, catch[2]
+					end
+				elseif else_body then
+					local catch = {lib.eval(else_body.content.value, env, stack)}
+					if not catch[1] then
+						return false, catch[2]
+					end
+				end
+
+				while #env > len do
+					table.remove(env, #env)
+				end
+
+				return true
+			end,
+			[[Takes an expression from the top of the stack to evaluate.
+The result of that, cast to bool like the `?` interrupt, is used to decide what next to evaluate.
+If the symbol of `true`, then the next expression is evaluated.
+If not `true`, and the top of the stack is the symbol `else`, then that symbol and a following expression are popped.
+The expression is then evaluated.
+
+`else` is *optional*.
+This only allows for a single branch. If you need to process more, then look at `cond`.
+
+If the expected expressions are of a different type, pushes an error<Type>.
+]]
+		)
+
+		r['cond'] = lib.make_builtin('cond', 'stdlib',
+			function(caller, env, stack)
+				local list = table.remove(stack, #stack)
+				if not list or not list.content.type == 'expression' then
+					stack[#stack + 1] = lib.make_error(list or caller, "Type", caller)
+					return true
+				end
+
+				local check_list = list.content.value
+				for i=1, #check_list, 2 do
+					local expr_check = check_list[i+1]
+					local expr_body = check_list[i]
+
+					local len = #env
+					env[#env+1] = {}
+
+					local catch = {lib.eval(expr_check.content.value, env, stack)}
+					if not catch[1] then
+						return false, catch[2]
+					end
+					lib.cast_bool(caller, env, stack)
+					local pop = table.remove(stack, #stack)
+					check_value = pop.content.value == "true"
+
+					if check_value then
+						local catch = {lib.eval(expr_body.content.value, env, stack)}
+						if not catch[1] then
+							return false, catch[2]
+						end
+
+						while #env > len do
+							table.remove(env, #env)
+						end
+
+						return true
+					end
+
+					while #env > len do
+						table.remove(env, #env)
+					end
+				end
+
+				return true
+			end,
+			[[Pops a single expression from the stack.
+If not an expression, push an error<Type>.
+Otherwise, iterates over the expression in pairs.
+Evaluating one half of the pair, and casting to bool like the `?` interrupt, if it is `true`,
+evaluates the other half of the pair and returns.
+Otherwise continues to the next.
+e.g.
+
+cond! {
+	{false} {print! "Nope."}
+	{true} {print! Here}
+}
+
+]]
+		)
 
 		r['reverse'] = lib.make_builtin('reverse', 'stdlib',
 			function(caller, env, stack)

@@ -1,0 +1,21 @@
+; Multi-branching conditional:
+
+cond! {
+	{false} {print! "Nope."}
+	{false} {print! "Not this one."}
+	{true} {print! Here}
+}
+
+; However, be aware of the parser - it is right-to-left.
+cond! {
+	{print! "Nope."}
+	{false}
+
+	{print! "Not this one."}
+	{false}
+
+	{true} {print! Here}
+}
+
+; You can generate conditionals and so on at runtime, of course.
+; TODO
