@@ -145,7 +145,8 @@ do
 						datum['raw'] = token
 						return datum
 					else
-						-- TODO: Error
+						-- Error:
+						error(string.format("Unknown Marked Token: %q for %s", cell[2], cell[1]))
 					end
 				end
 			end
@@ -301,7 +302,8 @@ do
 				elseif marker[c][2] == 'y' then
 					in_string = marker[c][1]
 				else
-					-- TODO: Error
+					-- Error
+					error(string.format("Critical Parser Bug: %s for %q", c, (concat or table.concat)(token)))
 				end
 			elseif comment[c] then
 				in_comment = comment[c]
@@ -383,7 +385,8 @@ do
 		elseif item.content.type == "interrupt" then
 			return "<interrupt>"
 		else
-			-- TODO: Error. Unreachable.
+			-- Error. Unreachable.
+			error(string.format("Critical Bug. Should be unreachable for %q", item.content.type))
 		end
 	end
 
@@ -525,7 +528,7 @@ do
 		elseif value.content.type == "interrupt" then
 			return {"interrupt", value.content.value}
 		else
-			-- TODO: Error
+			error(string.format("Unknown Type: %q for %s", value.content.type, value))
 		end
 	end
 
@@ -803,17 +806,103 @@ Errors from parsing and evaluation are propagated.
 					return true
 				end
 			end,
-			"TODO"
+			[[Given a symbol from a stack, constructs that kind of error.
+e.g. throw! Type]]
 		)
 
 		r['catch'] = lib.make_builtin('catch', 'stderror',
 			function(caller, env, stack)
-				-- TODO
+				local target = table.remove(stack, #stack)
+				local catchname = table.remove(stack, #stack)
+				local catchexp = table.remove(stack, #stack)
+
+				if not target then
+					stack[#stack + 1] = lib.make_error(caller, "Value", caller)
+					return true
+				end
+				if not catchname then
+					stack[#stack + 1] = lib.make_error(caller, "Value", caller)
+					return true
+				end
+				if not catchexp then
+					stack[#stack + 1] = lib.make_error(caller, "Value", caller)
+					return true
+				end
+
+				if target.content.type ~= "expression" then
+					stack[#stack + 1] = lib.make_error(target, "Type", caller)
+					return true
+				end
+				if catchexp.content.type ~= "expression" then
+					stack[#stack + 1] = lib.make_error(catchexp, "Type", caller)
+					return true
+				end
+
+				local attempt = true
+				local err = false
+
+				local len = #env
+				env[#env+1] = {}
+				-- TODO: Should we bind target to env['self']...?
+				local catch = {lib.eval(target.content.value, env, stack)}
+				if not catch[1] then
+					-- Drop the error, as we're binding to it anyway:
+					table.remove(stack, #stack)
+					attempt = false
+					err = catch[2]
+				elseif stack[#stack] and stack[#stack].content.type == "error" then
+					attempt = false
+					err = table.remove(stack, #stack)
+				end
+				while #env > len do
+					table.remove(env, #env)
+				end
+
+				if attempt == false then
+					local len = #env
+					env[#env+1] = {
+						[catchname.content.value] = err
+					}
+					-- TODO: Should we bind target to env['self']...?
+					local catch = {lib.eval(catchexp.content.value, env, stack)}
+					if not catch[1] then
+						return false, catch[2]
+					end
+					while #env > len do
+						table.remove(env, #env)
+					end
+				end
+
+				return true
 			end,
-			"TODO"
+			[[Pops the target expression from the stack,
+then the symbol to bind for the caught value,
+then the catch expression from the stack.
+If target or catch are not provided, then a error<Value> is pushed and returns.
+If target or catch are not expressions, then a error<Type> is pushed and returns.
+
+The target is then evaluated.
+If it exits poorly,
+then the result is bound to the symbol given,
+then the catch expression is evaluated.
+]]
 		)
 
-		-- TODO: Some standard error constructors
+		r['type'] = lib.make_builtin('type', 'stderror',
+			function(caller, env, stack)
+				local target = table.remove(stack, #stack) or lib.make_nil(caller)
+				if target.content.type ~= "error" then
+					stack[#stack + 1] = lib.make_nil(target)
+					return true
+				else
+					stack[#stack + 1] = lib.make_symbol(target, target.content.value)
+					return true
+				end
+			end,
+			[[Given a value from the top of the stack:
+If not an error, pushes the `nil` symbol.
+Else, pushes a symbol equal to the type of the error.]]
+		)
 
 		return r
 	end
