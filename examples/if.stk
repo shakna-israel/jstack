@@ -19,3 +19,19 @@ if! {true} {
 drop! dupe! else
 {print! true}
 if! {true}
+
+if! {not! true} {
+	print! "Never."
+}
+
+if! {not! false} {
+	print! "Always."
+}
+
+if! {not-equal! false true} {
+	print! "Again, always."
+}
+
+if! {or! false true} {
+	print! "Yay, conditionals."
+}

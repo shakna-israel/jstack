@@ -1048,9 +1048,68 @@ pushes a resulting symbol onto the stack of either `true` or `false`.
 An unknown type will push a error<Type>.]]
 		)
 
-		-- TODO: not-equal -> bool
-		-- TODO: not -> bool
-		-- TODO: or -> bool
+		r['not'] = lib.make_builtin('not', 'stdlib',
+			function(caller, env, stack)
+				local target = table.remove(stack, #stack) or lib.make_nil(caller)
+				stack[#stack + 1] = target
+				lib.cast_bool(caller, env, stack)
+				local result = table.remove(stack, #stack)
+				if result.content.value == "true" then
+					stack[#stack + 1] = lib.make_symbol(caller, "false")
+				else
+					stack[#stack + 1] = lib.make_symbol(caller, "true")
+				end
+				return true
+			end,
+			[[Casts top of stack to bool like the `?` interrupt, and then inverts the result.]]
+		)
+
+		r['not-equal'] = lib.make_builtin('not-equal', 'stdlib',
+			function(caller, env, stack)
+				r['equal'].content.value(caller, env, stack)
+				r['not'].content.value(caller, env, stack)
+				return true
+			end,
+			[[Calls equal, and then not.]]
+		)
+
+		r['or'] = lib.make_builtin('or', 'stdlib',
+			function(caller, env, stack)
+				local a = table.remove(stack, #stack) or lib.make_nil(caller)
+				local b = table.remove(stack, #stack) or lib.make_nil(caller)
+
+				stack[#stack + 1] = a
+				lib.cast_bool(caller, env, stack)
+				local result = table.remove(stack, #stack)
+				if result.content.value == "true" then
+					stack[#stack + 1] = a
+					return true
+				end
+
+				stack[#stack + 1] = b
+				lib.cast_bool(caller, env, stack)
+				local result = table.remove(stack, #stack)
+				if result.content.value == "true" then
+					stack[#stack + 1] = b
+					return true
+				end
+
+				stack[#stack + 1] = lib.make_nil(caller)
+				return true
+			end,
+		[[Pops two items from the stack.
+Pushes one of the following:
+* The first, if it casts to `true` with the `?` interrupt.
+* The second, if it casts to `true` with the `?` interrupt.
+* `nil` as a symbol.
+]])
+
+		r['nop'] = lib.make_builtin('nop', 'stdlib',
+			function(caller, env, stack)
+				return true
+			end,
+		[[A function that does exactly nothing.]])
+
 		-- TODO: less-than -> bool
 		-- TODO: greater-than -> bool
 		-- TODO: within (range) -> bool
@@ -1634,12 +1693,7 @@ If given nothing or a non-expression, acts as a no-op.]]
 	end
 
 	lib.cast_bool = function(caller, env, stack)
-		if #stack < 1 then
-			stack[#stack + 1] = lib.make_symbol(caller, "false")
-			return true
-		end
-
-		local target = table.remove(stack, #stack)
+		local target = table.remove(stack, #stack) or lib.make_symbol(caller, "false")
 		if target.content.type == "symbol" then
 			if target.content.value == "nil" or target.content.value == "false" then
 				stack[#stack + 1] = lib.make_symbol(caller, "false")
