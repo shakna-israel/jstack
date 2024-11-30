@@ -1222,8 +1222,54 @@ pushes a symbol of either `true` or `false`, measuring:
 	first >= second
 If the expected types or constraints are not met, pushes an error<Type>.]])
 
-		-- TODO: within (range) -> bool
-		-- TODO: find (index) -> bool
+		r['within'] = lib.make_builtin('within', 'stdlib',
+			function(caller, env, stack)
+				local target = table.remove(stack, #stack) or lib.make_nil(caller)
+				local start = table.remove(stack, #stack) or lib.make_nil(caller)
+				local end_pos = table.remove(stack, #stack) or lib.make_nil(caller)
+
+				if not target or not start or not end_pos then
+					stack[#stack + 1] = lib.make_error(caller, "Type", caller)
+					return true
+				end
+
+				if target.content.type ~= "integer" and target.content.type ~= "float" then
+					stack[#stack + 1] = lib.make_error(target, "Type", caller)
+					return true
+				end
+
+				if target.content.type ~= start.content.type then
+					stack[#stack + 1] = lib.make_error(start, "Type", caller)
+					return true
+				elseif target.content.type ~= end_pos.content.type then
+					stack[#stack + 1] = lib.make_error(end_pos, "Type", caller)
+					return true
+				end
+
+				if target.content.value > start.content.value and target.content.value < end_pos.content.value then
+					stack[#stack + 1] = lib.make_symbol(caller, "true")
+					return true
+				else
+					stack[#stack + 1] = lib.make_symbol(caller, "false")
+					return true
+				end
+
+				return false
+			end,
+			[[Given a value, a start comparison, and an end comparison,
+Pushes a symbol of `true` or `false` if the value is within the range given by both.
+If the comparisons are of a different type to the value, or anything is not an integer or float,
+pushes an error<Type>.
+
+e.g.
+	> within! 10 1 100
+	`true`
+]]
+		)
+
+		-- TODO: find <value> <expression> (index/`false`)
+		-- TODO: contains <value> <expression> (`true`/`false`)
+		-- TODO: index <expression> <value> (value/error<Value>)
 
 		r['to'] = lib.make_builtin('to', 'stdlib',
 			function(caller, env, stack)
@@ -1900,6 +1946,7 @@ If given nothing or a non-expression, acts as a no-op.]]
 		for idx, argument in ipairs(arg) do
 			if idx > 0 then
 				local f = io.open(argument)
+				-- TODO: Add env for os.environ
 				local r = {lib.eval(lib.parse(f:read("*all"), argument), {lib.stdlib()})}
 				f:close()
 				if not r[1] then
@@ -1914,3 +1961,6 @@ If given nothing or a non-expression, acts as a no-op.]]
 
 	return lib
 end
+
+-- TODO: When bubbling a critical error, the traceback "extra" should turn into a list,
+-- so it's an actual traceback.
