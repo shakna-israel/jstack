@@ -1,0 +1,7 @@
+~
+The OS' environment is exposed above the stdlib, when executing from the command line.
+This means it can't shadow your stdlib when you first load a script, but that you
+can access environment keys immediately:
+~
+
+print! USER$

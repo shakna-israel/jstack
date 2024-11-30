@@ -1,0 +1,17 @@
+~
+There's a standard library for loading
+jstack files, with a limited environment,
+to use as configuration files.
+~
+
+assert! import! stdconfig
+
+; We can load files.
+assert! stdconfig.loadfile$
+
+; Or we can load strings.
+assert! stdconfig.loadstring$
+
+; See the attached example:
+stdconfig.loadfile! "examples/config.example"
+print!

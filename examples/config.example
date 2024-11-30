@@ -1,0 +1,25 @@
+~
+Comments are fine. This is a valid jstack file.
+However, the functions we have access to are extremely limited.
+Not really enough to be Turing complete - loops should not be possible.
+
+We have:
+* let to bind to our environment - which will be thrown away.
+* clear - We return the stack, so clearing it before doing that is a good idea.
+* cond - Conditionals are possible.
+* if - Conditionals are possible.
+
+And that's it.
+~
+
+let! name "James"
+
+; Clear before returning:
+clear!
+
+; We're returning a list of pairs, here.
+; Using a called expression to make the syntax easier to read.
+; It'll be up to the loader to treat that intelligently.
+!{
+	name name$
+}

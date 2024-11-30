@@ -690,9 +690,101 @@ do
 	end
 
 	lib.stdconfig = function()
-		-- TODO: Limited eval of jstack to use as config files.
-		-- Probably only allow if and let.
+		-- Limited eval of jstack to use as config files.
+		-- Probably only allow if, cond and let.
 		local r = {}
+
+		r['loadstring'] = lib.make_builtin('loadstring', 'stdconfig',
+			function(caller, env, stack)
+				local source = table.remove(stack, #stack) or lib.make_string(caller, "")
+				local tree = lib.parse(lib.tostring(source))
+
+				local stdlib = lib.stdlib()
+				local new_env = {}
+				new_env['if'] = stdlib['if']
+				new_env['let'] = stdlib['let']
+				new_env['cond'] = stdlib['cond']
+				new_env['clear'] = stdlib['clear']
+				new_env[#new_env + 1] = {}
+
+				local new_stack = {}
+
+				local catch = {lib.eval(tree, {new_env}, new_stack)}
+				if not catch[1] then
+					return false, catch[2]
+				end
+
+				local s = lib.parse("{}")
+				if not s or not s[1] then
+					return false
+				end
+				
+				local new_wrap = s[1]
+				new_wrap.chunk = caller.chunk
+				new_wrap.line = caller.line
+				new_wrap.char = caller.char
+				new_wrap.content.raw = source
+				new_wrap.content.value = new_stack
+
+				stack[#stack + 1] = new_wrap
+				return true
+			end,
+			[[Pops one value from the top of the stack and casts to a string.
+It then parses that string, and runs it in a limited environment.
+The entire stack is returned as a new expression.
+Errors from parsing and evaluation are propagated.
+]]
+		)
+
+		r['loadfile'] = lib.make_builtin('loadstring', 'stdconfig',
+			function(caller, env, stack)
+				local fname = table.remove(stack, #stack)
+				local source = ""
+				if fname then
+					local f = io.open(tostring(fname.content.value))
+					if f then
+						source = f:read("*all")
+					end
+				end
+
+				local tree = lib.parse(source)
+
+				local stdlib = lib.stdlib()
+				local new_env = {}
+				new_env['if'] = stdlib['if']
+				new_env['let'] = stdlib['let']
+				new_env['cond'] = stdlib['cond']
+				new_env['clear'] = stdlib['clear']
+				new_env[#new_env + 1] = {}
+
+				local new_stack = {}
+
+				local catch = {lib.eval(tree, {new_env}, new_stack)}
+				if not catch[1] then
+					return false, catch[2]
+				end
+				
+				local s = lib.parse("{}")
+				if not s or not s[1] then
+					return false
+				end
+				
+				local new_wrap = s[1]
+				new_wrap.chunk = caller.chunk
+				new_wrap.line = caller.line
+				new_wrap.char = caller.char
+				new_wrap.content.raw = source
+				new_wrap.content.value = new_stack
+
+				stack[#stack + 1] = new_wrap
+				return true
+			end,
+			[[Pops one value from the top of the stack and reads from a file with a matching name.
+It then parses that string, and runs it in a limited environment.
+The last value on the isolated stack is returned to the main stack.
+Errors from parsing and evaluation are propagated.
+]]
+		)
 
 		return r
 	end
@@ -1950,12 +2042,25 @@ If given nothing or a non-expression, acts as a no-op.]]
 	-- TODO: repl (with hints, completions, etc.)
 
 	if debug and (debug.getinfo(3) == nil) then
+		local environ = {}
+		if os.getenv then
+			setmetatable(environ, {
+				__index = function(self, k)
+					local w = os.getenv(k)
+					if w then
+						return lib.make_string(nil, w)
+					else
+						return lib.make_nil(nil)
+					end
+				end
+			})
+		end
+
 		local arg = arg or {}
 		for idx, argument in ipairs(arg) do
 			if idx > 0 then
 				local f = io.open(argument)
-				-- TODO: Add env for os.environ
-				local r = {lib.eval(lib.parse(f:read("*all"), argument), {lib.stdlib()})}
+				local r = {lib.eval(lib.parse(f:read("*all"), argument), {environ, lib.stdlib()})}
 				f:close()
 				if not r[1] then
 					if type(r[2]) == "table" then
