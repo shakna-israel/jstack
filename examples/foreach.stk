@@ -1,0 +1,22 @@
+; Right-to-left, for parsing means list may look 'reversed'
+foreach! i {i3 i2 i1} {
+	print! i$
+}
+
+; Of course, you can rewrite however is comfortable:
+{
+	print! i$
+}
+{
+	i1
+	i2
+	i3
+}
+foreach! i
+
+; `reverse` is probably the nicest to use.
+; Remember: foreach reads a stack, not a group of arguments.
+; You can process things inline before handing them over.
+foreach! i reverse! {i1 i2 i3} {
+	print! i$
+}

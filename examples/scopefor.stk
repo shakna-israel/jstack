@@ -1,0 +1,13 @@
+~
+Like everything, jstack preserves the scope.
+~
+
+let! i "Hello, World!"
+
+for! {i i1 i100 i1} {
+	print! i$
+	; However, if you modify i here, then the increment won't happen.
+}
+
+; This prints "Hello, World!"
+print! i$

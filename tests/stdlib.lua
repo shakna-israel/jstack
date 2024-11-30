@@ -183,4 +183,48 @@ do
 	-- TODO: actual behaviour
 end
 
+do
+	local f = jstack.stdlib()['while']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['for']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['foreach']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['reverse']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
 -- TODO: Other functions as we add them.

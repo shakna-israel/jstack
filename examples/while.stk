@@ -1,0 +1,4 @@
+; Simple infinite loop:
+while! {true} {
+	print! "Hello, World!"
+}

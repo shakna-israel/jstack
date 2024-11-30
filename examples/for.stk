@@ -1,0 +1,21 @@
+~
+For loops take a name to bind,
+a start position,
+an end position,
+and the increment to apply at the end of each loop.
+
+If you override the symbol, the new value is taken and no increment occurs.
+~
+
+for! {i i1 i100 i1} {
+	print! i$
+}
+
+for! {i i100 i0 i-1} {
+	print! i$
+}
+
+for! {i i1 i100 i1} {
+	let! i 99
+	print! "Prints once."
+}

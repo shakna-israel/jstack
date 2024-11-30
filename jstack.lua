@@ -800,14 +800,6 @@ If none, treats it as an empty string.
 Converts the item to a string, and prints it to stdout.
 Appends a newline to the end of the output.]])
 
-		r['drop'] = lib.make_builtin("drop", "stdlib",
-			function(caller, env, stack)
-				table.remove(stack, #stack)
-				return true
-			end,
-			"TODO"
-		)
-
 		r['assert'] = lib.make_builtin("assert", "stdlib",
 			function(caller, env, stack)
 				local target = table.remove(stack, #stack)
@@ -822,9 +814,11 @@ If the stack is empty, or the top value was an error, then a Critical is thrown.
 
 		r['type'] = lib.make_builtin('type', 'stdlib',
 			function(caller, env, stack)
-				-- TODO: Push type onto stack
+				local target = table.remove(stack, #stack) or lib.make_nil(caller)
+				stack[#stack+1] = lib.make_symbol(caller, target.content.type)
 			end,
-			[[TODO]]
+			[[Pops top of the stack, and pushes a symbol containing the type to the top of the stack.
+If the stack is empty, symbol is returned, as if it were `nil`.]]
 		)
 
 		r['import'] = lib.make_builtin("import", "stdlib",
@@ -902,7 +896,7 @@ See also, `copy`.]])
 
 		r['let'] = lib.make_builtin("let", "stdlib",
 			function(caller, env, stack)
-				-- TODO: Install a reference into the current scope.
+				-- Install a reference into the current scope.
 				local name = table.remove(stack, #stack)
 				local value = table.remove(stack, #stack)
 
@@ -913,7 +907,9 @@ See also, `copy`.]])
 				env[#env][name.content.value] = value
 				return true
 			end,
-			[[TODO]]
+			[[Takes the name, and then value,
+from the top of the stack,
+and binds it into the current environment.]]
 		)
 
 		r['get'] = lib.make_builtin("get", "stdlib",
@@ -931,6 +927,7 @@ See also, `copy`.]])
 then pushes either a symbol with the value of nil,
 or the first matching item from the environment.]])
 
+		-- TODO: Expose this so we can use it globally.
 		r['equal'] = lib.make_builtin("equal", "stdlib",
 			function(caller, env, stack)
 				local a = table.remove(stack, #stack) or lib.make_nil(caller)
@@ -972,7 +969,7 @@ two values are comparable.]]
 
 		r['is'] = lib.make_builtin('is', 'stdlib',
 			function(caller, env, stack)
-				-- TODO: Compare types
+				-- Compare types
 				local type = table.remove(stack, #stack)
 				local target = table.remove(stack, #stack)
 
@@ -1045,7 +1042,10 @@ two values are comparable.]]
 					return true
 				end
 			end,
-			[[TODO]]
+			[[Given a type as a symbol, and then a target,
+from the top of the stack,
+pushes a resulting symbol onto the stack of either `true` or `false`.
+An unknown type will push a error<Type>.]]
 		)
 
 		-- TODO: not-equal -> bool
@@ -1163,10 +1163,222 @@ two values are comparable.]]
 			[[TODO]]
 		)
 
-		-- TODO: while
-		-- TODO: for
+		r['while'] = lib.make_builtin('while', 'stdlib',
+			function(caller, env, stack)
+				local check = table.remove(stack, #stack)
+				local body = table.remove(stack, #stack)
+
+				if body.content.type ~= 'expression' then
+					stack[#stack + 1] = lib.make_error(caller, "Type", body)
+					return true
+				end
+
+				local check_value = false
+				if check.content.type == 'expression' then
+					local catch = {lib.eval(check.content.value, env, stack)}
+					if not catch[1] then
+						return false, catch[2]
+					end
+				else
+					stack[#stack + 1] = check
+				end
+				lib.cast_bool(caller, env, stack)
+				local pop = table.remove(stack, #stack)
+				check_value = pop.content.value == "true"
+
+				while check_value do
+					local catch = {lib.eval(body.content.value, env, stack)}
+					if not catch[1] then
+						return false, catch[2]
+					end
+
+					check_value = false
+					if check.content.type == 'expression' then
+						local catch = {lib.eval(check.content.value, env, stack)}
+						if not catch[1] then
+							return false, catch[2]
+						end
+					else
+						stack[#stack + 1] = check
+					end
+					lib.cast_bool(caller, env, stack)
+					local pop = table.remove(stack, #stack)
+					check_value = pop.content.value == "true"
+				end
+
+				return true
+			end,
+			[[Pops the body and check from the stack.
+If the body is not an expression, then an error<Type> is pushed to the stack and the function returns.
+If the check is an expression, it is evaluated, otherwise it is cast to bool like the `?` interrupt.
+The body is then evaluated as an expression.
+When the top of the stack is not `true` after a check and cast, the loop breaks.
+Neither body nor check are evaluated in a new scope - their current environment persists.
+]]
+		)
+
+		r['for'] = lib.make_builtin('for', 'stdlib',
+			function(caller, env, stack)
+				local range = table.remove(stack, #stack)
+				local body = table.remove(stack, #stack)
+
+				if range.content.type ~= 'expression' then
+					stack[#stack+1] = lib.make_error(range, "Type", caller)
+					return true
+				elseif body.content.type ~= 'expression' then
+					stack[#stack+1] = lib.make_error(range, "Type", caller)
+					return true
+				end
+
+				local len = #env
+				env[#env+1] = {}
+				-- TODO: Should we bind target to env['self']...?
+				local catch = {lib.eval(range.content.value, env, stack)}
+				if not catch[1] then
+					return false, catch[2]
+				end
+				while #env > len do
+					table.remove(env, #env)
+				end
+
+				local name = table.remove(stack, #stack)
+				local begin_pos = table.remove(stack, #stack)
+				local end_pos = table.remove(stack, #stack)
+				local increment = table.remove(stack, #stack) or make_integer(range, 1)
+
+				if not end_pos then
+					stack[#stack + 1] = lib.make_error(range, "Value")
+					return true
+				elseif not begin_pos then
+					stack[#stack + 1] = lib.make_error(range, "Value")
+					return true
+				elseif not name then
+					stack[#stack + 1] = lib.make_error(range, "Value")
+					return true
+				end
+
+				local len = #env
+				env[#env+1] = {}
+				local check_len = #env
+				env[#env][name.content.value] = begin_pos
+
+				while true do
+					local catch = {lib.eval(body.content.value, env, stack)}
+					if not catch[1] then
+						return false, catch[2]
+					end
+
+					local installed = env[check_len][name.content.value]
+
+					-- TODO: Use the add operator here instead.
+					installed.content.value = (installed.content.value) + (increment.content.value)
+
+					local current = lib.lookup(range, name, env)
+					-- TODO: Use the equal operator here instead.
+					if current.content.value == end_pos.content.value then
+						break
+					end
+				end
+
+				while #env > len do
+					table.remove(env, #env)
+				end
+
+				return true
+			end,
+			[[Pops two expressions from the stack.
+The first should be the range.
+The second, the loop body.
+If either is not an expression a error<Type> is pushed and the function returns.
+
+The range expression should push:
+The increment to add to the check value each time.
+	Defaults to i1 if not given.
+The end target for the check value.
+	If not given, a error<Value> is pushed instead.
+The start value for the check value.
+	If not given, a error<Value> is pushed instead.
+The name to bind the check value into the environment.
+	If not given, a error<Value> is pushed instead.
+
+The values of the range probably should be integers
+for most uses - but it is not a requirement.
+
+After executing the body, the increment is installed
+into the originally installed scope.
+That is, if you bind a new symbol with a new value,
+no increment will occur, and that value will be taken instead.]]
+		)
+
+		r['foreach'] = lib.make_builtin('foreach', 'stdlib',
+			function(caller, env, stack)
+				local name = table.remove(stack, #stack)
+				local list = table.remove(stack, #stack)
+				local body = table.remove(stack, #stack)
+
+				local len = #env
+				env[#env+1] = {}
+
+				local args = {}
+				local catch = {lib.eval(list.content.value, env, args)}
+				if not catch[1] then
+					return false, catch[2]
+				end
+
+				for idx, cell in ipairs(args) do
+					env[#env][name.content.value] = cell
+
+					local catch = {lib.eval(body.content.value, env, stack)}
+					if not catch[1] then
+						return false, catch[2]
+					end
+				end
+
+				while #env > len do
+					table.remove(env, #env)
+				end
+
+				return true
+			end,
+			[[TODO]]
+		)
+
 		-- TODO: if
 		-- TODO: cond
+
+		r['reverse'] = lib.make_builtin('reverse', 'stdlib',
+			function(caller, env, stack)
+				local target = table.remove(stack, #stack)
+				if not target or target.content.type ~= 'expression' then
+					return true
+				end
+
+				local new_value = {}
+				for i=#target.content.value, 1, -1 do
+					new_value[#new_value + 1] = target.content.value[i]
+				end
+				
+				local s = lib.parse("{}")
+				if not s or not s[1] then
+					return false
+				end
+				
+				local new_wrap = s[1]
+				for k, v in pairs(target) do
+					new_wrap[k] = v
+				end
+				for k, v in pairs(target.content) do
+					new_wrap.content[k] = v
+				end
+				new_wrap.content.value = new_value
+
+				stack[#stack + 1] = new_wrap
+
+				return true
+			end,
+			[[Reverses the order of an expression.
+If given nothing or a non-expression, acts as a no-op.]]
+		)
 
 		return r
 	end
