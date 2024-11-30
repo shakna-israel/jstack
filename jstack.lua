@@ -689,6 +689,14 @@ do
 		return r
 	end
 
+	lib.stdconfig = function()
+		-- TODO: Limited eval of jstack to use as config files.
+		-- Probably only allow if and let.
+		local r = {}
+
+		return r
+	end
+
 	lib.stderror = function()
 		local r = {}
 
