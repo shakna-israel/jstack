@@ -36,7 +36,7 @@ Then the [import_lua.stk](examples/import_lua.stk) example is probably worth a v
 
 ## Dependencies
 
-`jstack` should run on any Lua 5.1+ system.
+`jstack` should run on any Lua 5.1+ system. (Tested on 5.1, 5.2, 5.3, 5.4, and luajit).
 
 I would recommend `luajit 2.0` or above, however most should work fine.
 

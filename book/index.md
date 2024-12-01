@@ -1,6 +1,6 @@
 ---
 title: jstack
-subtitle: A Programming Language
+subtitle: An easy to use, stack-based, programming language.
 author:
 	- James Milne
 language: en

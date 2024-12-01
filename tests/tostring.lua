@@ -91,8 +91,7 @@ do
 	assert(s)
 	local w = jstack.make_nil()
 	w.content = s
-
-	assert(jstack.tostring(w) == "<interrupt>")
+	assert(jstack.tostring(w) == "interrupt<!>")
 end
 
 -- expression
@@ -101,7 +100,7 @@ do
 	local s = jstack.parse("{1 2 3}")
 	assert(s)
 	assert(s[1])
-	assert(jstack.tostring(s[1]) == "{1 2 3}")
+	assert(jstack.tostring(s[1]) == "{ `3` `2` `1` }")
 end
 
 -- builtin
