@@ -924,11 +924,11 @@ Else, pushes a symbol equal to the type of the error.]]
 		if os.getenv then
 			setmetatable(environ, {
 				__index = function(self, k)
-					local w = os.getenv(k)
-					if w then
-						return lib.make_string(nil, w)
-					else
-						return lib.make_nil(nil)
+					if k:sub(1, 7) == "environ" then
+						local w = os.getenv(k:sub(9))
+						if w then
+							return lib.make_string(nil, w)
+						end
 					end
 				end
 			})
@@ -1044,7 +1044,9 @@ If the stack is empty, symbol is returned, as if it were `nil`.]]
 			function(caller, env, stack)
 				local target = table.remove(stack, #stack)
 
-				if target.content.value:sub(1, 3) == "std" and lib[target.content.value] then
+				if target.content.value == "environ" then
+					env[#env + 1] = lib.sysenv()
+				elseif target.content.value:sub(1, 3) == "std" and lib[target.content.value] then
 					local environ = {}
 					for k, v in pairs(lib[target.content.value]()) do
 						environ[string.format("%s.%s", target.content.value, k)] = v
