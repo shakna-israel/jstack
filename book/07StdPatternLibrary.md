@@ -1,0 +1,3 @@
+# stdpattern
+
+TODO
