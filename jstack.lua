@@ -1005,6 +1005,7 @@ If the stack is empty, or the top value was an error, then a Critical is thrown.
 			function(caller, env, stack)
 				local target = table.remove(stack, #stack) or lib.make_nil(caller)
 				stack[#stack+1] = lib.make_symbol(caller, target.content.type)
+				return true
 			end,
 			[[Pops top of the stack, and pushes a symbol containing the type to the top of the stack.
 If the stack is empty, symbol is returned, as if it were `nil`.]]
