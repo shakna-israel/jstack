@@ -357,12 +357,22 @@ do
 
 	lib.tostring = function(item)
 		if not item then return "" end
+
+		if type(item) ~= "table" then
+			return tostring(item)
+		end
+
 		if item.content.type == "builtin" then
 			return string.format("%s%s",
 				item.content.type,
 				item.content.raw)
 		elseif item.content.type == "expression" then
-			return string.format("%s", item.content.raw)
+			local tmp_t = {}
+			for idx, cell in ipairs(item.content.value) do
+				tmp_t[#tmp_t + 1] = lib.tostring(cell)
+			end
+			local tmp_s = (concat or table.concat)(tmp_t, " ")
+			return string.format("{ %s }", tmp_s)
 		elseif item.content.type == "string" then
 			return item.content.value
 		elseif item.content.type == "integer" then
@@ -373,7 +383,7 @@ do
 			return string.format("`%s`", item.content.value)
 		elseif item.content.type == "error" then
 			return string.format("error<%s>(%s %s:%s)\n%s\n%s",
-				item.content.value,
+				lib.tostring(item.content.value),
 				item.chunk,
 				item.line,
 				item.char,
@@ -383,7 +393,7 @@ do
 		elseif item.content.type == "foreign" then
 			return string.format("foreign<%s:%s:%s>", item.chunk, item.line, item.char)
 		elseif item.content.type == "interrupt" then
-			return "<interrupt>"
+			return string.format("interrupt<%s>", item.content.value)
 		else
 			-- Error. Unreachable.
 			error(string.format("Critical Bug. Should be unreachable for %q", item.content.type))
@@ -993,7 +1003,7 @@ Appends a newline to the end of the output.]])
 			function(caller, env, stack)
 				local target = table.remove(stack, #stack)
 				if target == nil or target.content.type == "error" then
-					return false, target or caller
+					return false, lib.make_error(target or caller, target or "Critical")
 				end
 				return true
 			end,
