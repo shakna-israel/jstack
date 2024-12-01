@@ -2072,13 +2072,11 @@ If given nothing or a non-expression, acts as a no-op.]]
 					table.remove(env, #env)
 				end
 			elseif target.content.type == "symbol" then
-				local v = lib.lookup(caller, target, env)
+				local v = lib.lookup(caller, target, env) or lib.make_nil(caller)
 				if v.content.type == "symbol" and v.content.value == "nil" then
 					return false, lib.make_error(caller, "Critical", target)
 				end
 				stack[#stack + 1] = v
-
-				-- TODO: This infinitely recurses on bad lookups...
 
 				local catch = {lib.exec(caller, env, stack)}
 				if not catch[1] then
