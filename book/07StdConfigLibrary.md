@@ -1,3 +1,0 @@
-# stdconfig
-
-TODO

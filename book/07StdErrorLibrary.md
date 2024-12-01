@@ -1,3 +1,0 @@
-# stderror
-
-TODO

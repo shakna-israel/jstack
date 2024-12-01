@@ -1,3 +1,0 @@
-# Lua Interop
-
-TODO
