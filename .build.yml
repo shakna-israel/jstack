@@ -11,6 +11,10 @@ packages:
   - epubcheck
   - poppler-utils
   - gawk
+  - texlive-latex-base
+  - texlive-fonts-recommended
+  - texlive-fonts-extra
+  - texlive-latex-extra
 sources:
   - https://git.sr.ht/~shakna/jstack
 tasks:
