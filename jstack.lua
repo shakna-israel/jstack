@@ -1,3 +1,5 @@
+#!/usr/bin/env luajit
+
 --[==[
 jstack (c) 2024, James Milne
 
