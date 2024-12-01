@@ -23,3 +23,5 @@ lua5.1:
 
 install: jstack.lua
 	/usr/bin/install -m 755 -T jstack.lua /usr/local/bin/jstack
+
+# TODO: Can we build and test against https://github.com/whitecatboard/Lua-RTOS-ESP32 ??
