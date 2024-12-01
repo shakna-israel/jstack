@@ -919,6 +919,23 @@ Else, pushes a symbol equal to the type of the error.]]
 		return r
 	end
 
+	lib.sysenv = function()
+		local environ = {}
+		if os.getenv then
+			setmetatable(environ, {
+				__index = function(self, k)
+					local w = os.getenv(k)
+					if w then
+						return lib.make_string(nil, w)
+					else
+						return lib.make_nil(nil)
+					end
+				end
+			})
+		end
+		return environ
+	end
+
 	lib.stdlib = function()
 		local r = {}
 
@@ -2141,37 +2158,73 @@ If given nothing or a non-expression, acts as a no-op.]]
 		return true
 	end
 
-	-- TODO: argparse
-	-- TODO: repl (with hints, completions, etc.)
+	do
+		if debug and (debug.getinfo(3) == nil) then
+			local run_version = function(com)
+				return string.format("%s %s", com, (concat or table.concat)(lib.version, "."))
+			end
 
-	if debug and (debug.getinfo(3) == nil) then
-		local environ = {}
-		if os.getenv then
-			setmetatable(environ, {
-				__index = function(self, k)
-					local w = os.getenv(k)
-					if w then
-						return lib.make_string(nil, w)
-					else
-						return lib.make_nil(nil)
+			local run_help = function(com)
+				return run_version(com) .. 
+					string.format("\n\t%s\n", "An easy to use, stack-based, programming language.") ..
+					"\n" ..
+					string.format("--%s\n\t%s\n", "help", "Show this help information.") ..
+					string.format("-%s\n\t%s\n", "h", "Show this help information.")
+			end
+
+			local run_repl = function(com)
+				-- TODO: History, predictive text, etc.
+
+				print(run_version(com))
+				local env = {lib.sysenv(), lib.stdlib()}
+				local stack = {}
+				while true do
+					io.write("> ")
+					local line = io.read("*l")
+					local r = {lib.eval(lib.parse(line, "<stdin>"), {lib.sysenv(), lib.stdlib()}, stack)}
+					if not r[1] then
+						if type(r[2]) == "table" then
+							print(lib.tostring(r[2]))
+						end
+					end
+					print("---")
+					print(string.format("stack: %d", #stack))
+				end
+			end
+
+			local run_cli = function(caller, args)
+				for idx, cell in ipairs(args) do
+					if cell == "--help" or cell == "-h" then
+						print(run_help(caller))
+						return true
+					elseif cell == "--version" then
+						print(run_version(caller))
+						return true
+					elseif cell == "--repl" then
+						return run_repl(caller)
 					end
 				end
-			})
-		end
 
-		local arg = arg or {}
-		for idx, argument in ipairs(arg) do
-			if idx > 0 then
-				local f = io.open(argument)
-				local r = {lib.eval(lib.parse(f:read("*all"), argument), {environ, lib.stdlib()})}
-				f:close()
-				if not r[1] then
-					if type(r[2]) == "table" then
-						io.stderr:write(lib.tostring(r[2]) .. "\n")
-						os.exit(1)
+				for idx, argument in ipairs(arg) do
+					local f = io.open(argument)
+					local r = {lib.eval(lib.parse(f:read("*all"), argument), {lib.sysenv(), lib.stdlib()})}
+					f:close()
+					if not r[1] then
+						if type(r[2]) == "table" then
+							io.stderr:write(lib.tostring(r[2]) .. "\n")
+							os.exit(1)
+						end
 					end
 				end
 			end
+
+			local cli_args = {}
+			for idx, argument in ipairs(arg) do
+				if idx > 0 then
+					cli_args[#cli_args + 1] = argument
+				end
+			end
+			return run_cli(arg[0], cli_args)
 		end
 	end
 
