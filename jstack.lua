@@ -1048,11 +1048,13 @@ If the stack is empty, symbol is returned, as if it were `nil`.]]
 							new_env[string.format("%s.%s", k, target.content.value)] = v
 						end
 						env[#env + 1] = new_env
+						stack[#stack + 1] = lib.make_symbol(caller, "true")
 					else
 						-- Allow importing a Lua module...
 						local environ = lib.import_lua(caller, target.content.value)
 						if environ then
 							env[#env + 1] = environ
+							stack[#stack + 1] = lib.make_symbol(caller, "true")
 						else
 							stack[#stack + 1] = lib.make_error(caller, "Import", target)
 						end

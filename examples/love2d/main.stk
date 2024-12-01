@@ -1,0 +1,15 @@
+~
+Grab the love graphics library.
+jstack should just convert it for us:
+~
+assert: import: love.graphics
+
+; Define the expression to be called by love.draw:
+let: draw {
+	love.graphics.print: "Hello World!" i400 i300
+}
+
+; Define the expression to be called by love.update:
+let: update {
+	clear!
+}
