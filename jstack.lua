@@ -993,7 +993,7 @@ Appends a newline to the end of the output.]])
 			function(caller, env, stack)
 				local target = table.remove(stack, #stack)
 				if target == nil or target.content.type == "error" then
-					return false
+					return false, target or caller
 				end
 				return true
 			end,
@@ -2085,9 +2085,10 @@ If given nothing or a non-expression, acts as a no-op.]]
 					return false, catch[2]
 				end
 			elseif target.content.type == "builtin" then
-				if not target.content.value(caller, env, stack) then
-					local e = lib.make_error(caller, "Critical", target)
-					stack[#stack + 1] = e
+				local catch = {target.content.value(caller, env, stack)}
+				if not catch[1] then
+					local e = catch[2] or lib.make_error(caller, "Critical", target)
+					return false, e
 				end
 			else
 				-- Type Error:
