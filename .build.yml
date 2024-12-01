@@ -10,7 +10,7 @@ packages:
   - pandoc
   - epubcheck
   - poppler-utils
-  - awk
+  - gawk
 sources:
   - https://git.sr.ht/~shakna/jstack
 tasks:
