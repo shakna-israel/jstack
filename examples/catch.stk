@@ -1,0 +1,39 @@
+~
+Error handling is made easier with the stderror library.
+~
+
+import! stderror
+
+~
+It basically takes the form of:
+stderror.catch! <expression> <name-for-error> <catch-expression>
+
+Or:
+<catch-expression>
+<name-for-error>
+<expression>
+stderror.catch!
+~
+
+stderror.catch! {
+	stderror.throw! Critical
+} error {
+	; We bound the error to the symbol `error`.
+	; Careful not to leave it on the stack!
+	; If an uncaught Critical is found at the top of the stack,
+	; the program will still explode!
+	print! error$
+	print! "Caught."
+}
+
+stderror.catch! {
+	stderror.throw! CustomError
+} error {
+	; Even though non-Critical errors don't explode, we can still
+	; catch them.
+	if! { equal? CustomError stderror.type! error$ } {
+		print! "Caught custom."
+	} else {
+		print! "Other kind of error..."
+	}
+}

@@ -7,9 +7,16 @@ packages:
   - lua5.2
   - lua5.3
   - lua5.4
+  - pandoc
+  - epubcheck
+  - poppler-utils
+  - awk
 sources:
   - https://git.sr.ht/~shakna/jstack
 tasks:
   - test: |
       cd jstack
       make -j4 test
+  - testdoc: |
+      cd jstack/book
+      make
