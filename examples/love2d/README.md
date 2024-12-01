@@ -1,5 +1,7 @@
 # love2d Example
 
+![Demonstration of love2D, running jstack code](demo.png)
+
 Whilst `jstack` will work perfectly well under [love2d](https://love2d.org/), we do need a bit of a scaffold.
 
 The [main.lua](main.lua) file acts as this. It loads in jstack, and our script to execute.
