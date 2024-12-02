@@ -1,14 +1,31 @@
-assert: import: stdlfi
+~
+We can import the graphics library and just use it,
+as per in Lua:
+~
 assert: import: love.graphics
 
 let: draw {
 	love.graphics.print: "Hello World!" i400 i300
 }
 
+~
+However, to actually install the callback, we'll need
+the LFI standard library.
+
+jstack doesn't have functions, and has a strict scope
+which doesn't include modifying existing tables,
+usually.
+~
+
+assert: import: stdlfi
+
+; Grab Lua's love table from the global table:
 stdlfi.get: stdlfi._G! "love"
 let: love
 
+; Convert our expression into a Lua function:
 stdlfi.tofunction! draw$
 let: love_draw
 
+; Install the callback into the table:
 stdlfi.set: love$ draw love_draw$
