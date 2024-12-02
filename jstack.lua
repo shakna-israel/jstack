@@ -360,7 +360,7 @@ do
 	lib.tostring = function(item)
 		if not item then return "" end
 
-		if type(item) ~= "table" then
+		if type(item) ~= "table" or not item or not item.content then
 			return tostring(item)
 		end
 
@@ -393,7 +393,7 @@ do
 				lib.tostring(item.content.extra or nil)
 			)
 		elseif item.content.type == "foreign" then
-			return string.format("foreign<%s:%s:%s>", item.chunk, item.line, item.char)
+			return string.format("foreign<%s:%s:%s>(%s)", item.chunk, item.line, item.char, tostring(item.content.value))
 		elseif item.content.type == "interrupt" then
 			return string.format("interrupt<%s>", item.content.value)
 		else
@@ -665,6 +665,164 @@ do
 		end
 
 		return name
+	end
+
+	lib.stdlfi = function()
+		local r = {}
+
+		-- "Lua Foreign Interface"
+
+		-- TODO: Something to construct Lua functions.
+		-- TODO: Something to install into a Lua table.
+
+		r['_G'] = lib.make_builtin('_G', 'stdlfi',
+			function(caller, env, stack)
+				stack[#stack + 1] = lib.make_foreign(caller, _G)
+				return true
+			end,
+			[[Push the global table from Lua onto the stack as a foreign.]]
+		)
+
+		r['get'] = lib.make_builtin('get', 'stdlfi',
+			function(caller, env, stack)
+				local target = table.remove(stack, #stack) or lib.make_nil(caller)
+				local name = table.remove(stack, #stack) or lib.make_nil(caller)
+				if target.content.type ~= "foreign" then
+					stack[#stack + 1] = lib.make_error(caller, "Type", target)
+					return true
+				end
+
+				local t = target.content.value
+				local n = name.content.value
+
+				stack[#stack + 1] = lib.make_foreign(caller, t[n])
+				return true
+			end,
+			[[Pops a foreign table, and a name, from the stack.
+Pushes a foreign type of the resulting value.
+If not given a foreign table, pushes an error<Type>.]]
+		)
+
+		r['set'] = lib.make_builtin('set', 'stdlfi',
+			function(caller, env, stack)
+				local target = table.remove(stack, #stack) or lib.make_nil(caller)
+				local name = table.remove(stack, #stack) or lib.make_nil(caller)
+				local value = table.remove(stack, #stack) or lib.make_nil(caller)
+
+				if target.content.type ~= "foreign" then
+					stack[#stack + 1] = lib.make_error(caller, "Type", target)
+					return true
+				end
+				local t = target.content.value
+
+				local n = nil
+				if name.content.type == "foreign" then
+					n = name.content.value
+				else
+					n = lib.to_lua(name)
+				end
+
+				local v = nil
+				if value.content.type == "foreign" then
+					v = value.content.value
+				else
+					v = lib.to_lua(value)
+				end
+
+				t[n] = v
+
+				stack[#stack + 1] = lib.make_symbol(caller, true)
+				return true
+			end,
+			[[Pops:
+* A target, which must be a foreign type.
+* A name, which will be converted if native, or remain untouched if foreign.
+* A value, which will be converted if native, or remain untouched if foreign.
+
+The value will then be installed into the target with the name.
+
+Pushes error<Type> if any constraint is violated.
+Pushes the `true` symbol on success.
+]]
+		)
+
+		r['type'] = lib.make_builtin('type', 'stdlfi',
+			function(caller, env, stack)
+				local target = table.remove(stack, #stack) or lib.make_nil(caller)
+				if not target.content.type == "foreign" then
+					stack[#stack + 1] = lib.make_error(caller, "Type", target)
+					return true
+				end
+
+				local t = target.content.value
+				stack[#stack + 1] = lib.make_symbol(caller, type(t))
+				return true
+			end,
+			[[Pops a foreign type from the stack.
+Pushes a symbol of it's type.
+If not given a foreign, pushes an error<Type>.]]
+		)
+
+		r['tofunction'] = lib.make_builtin('tofunction', 'stdlfi',
+			function(caller, env, stack)
+				local target = table.remove(stack, #stack)
+				if target.content.type == "expression" then
+					-- Return foreign, containing a function, that eval's an expression
+					stack[#stack + 1] = lib.make_foreign(caller, function(...)
+						local nstack = {...}
+						local len = #env
+						env[#env+1] = {}
+						local attempt = true
+						-- TODO: Should we bind target to env['self']...?
+
+						local catch = {lib.eval(target.content.value, env, nstack)}
+						if not catch[1] then
+							-- Drop the error, as we're binding to it anyway:
+							table.remove(nstack, #nstack)
+							attempt = false
+							err = catch[2]
+						elseif nstack[#nstack] and nstack[#nstack].content.type == "error" then
+							attempt = false
+							err = table.remove(nstack, #nstack)
+						end
+						while #env > len do
+							table.remove(env, #env)
+						end
+						if not attempt then
+							return nil, lib.tostring(err)
+						end
+
+						local rets = {}
+						for k, v in pairs(nstack) do
+							rets[k] = lib.to_lua(v)
+						end
+
+						return true, (unpack or table.unpack)(rets)
+					end)
+					return true
+				else
+					-- Return foreign, containing a function, that pushes the value...
+					stack[#stack + 1] = lib.make_foreign(caller, function(...)
+						return lib.to_lua(target)
+					end)
+					return true
+				end
+			end,
+			[[Pops a single value from the stack.
+If this is not an expression:
+	Pushes a foreign function that returns that value.
+	This uses a reference at call time - it is not copied!
+If this is an expression:
+	Pushes a foreign function that evaluates the expression,
+using the argument list as a stack, and then unpacks and returns the stack.
+	This uses a reference at call time - it is not copied!]]
+		)
+
+		for k, v in pairs(r) do
+			r[k].help = r[k].help .. "\nWarning: All LFI functions are inherently unsafe.\nHere there be dragons."
+		end
+
+		return r
 	end
 
 	lib.stdenv = function()
@@ -2178,12 +2336,18 @@ If given nothing or a non-expression, acts as a no-op.]]
 				-- TODO: History, predictive text, etc.
 
 				print(run_version(com))
+				print("Exit by running:\n\t;quit")
 				local env = {lib.sysenv(), lib.stdlib()}
 				local stack = {}
 				while true do
+					local env_len = #env
 					io.write("> ")
 					local line = io.read("*l")
-					local r = {lib.eval(lib.parse(line, "<stdin>"), {lib.sysenv(), lib.stdlib()}, stack)}
+					-- TODO: lstrip line
+					if line == ';quit' then
+						break
+					end
+					local r = {lib.eval(lib.parse(line, "<stdin>"), env, stack)}
 					if not r[1] then
 						if type(r[2]) == "table" then
 							print(lib.tostring(r[2]))
@@ -2191,6 +2355,13 @@ If given nothing or a non-expression, acts as a no-op.]]
 					end
 					print("---")
 					print(string.format("stack: %d", #stack))
+					if #env ~= env_len then
+						for k, v in pairs(env[#env] or {}) do
+							print(k, v.content.type)
+							print("\t" .. v.help)
+							print()
+						end
+					end
 				end
 			end
 

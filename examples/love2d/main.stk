@@ -1,15 +1,14 @@
-~
-Grab the love graphics library.
-jstack should just convert it for us:
-~
+assert: import: stdlfi
 assert: import: love.graphics
 
-; Define the expression to be called by love.draw:
 let: draw {
 	love.graphics.print: "Hello World!" i400 i300
 }
 
-; Define the expression to be called by love.update:
-let: update {
-	clear!
-}
+stdlfi.get: stdlfi._G! "love"
+let: love
+
+stdlfi.tofunction! draw$
+let: love_draw
+
+stdlfi.set: love$ draw love_draw$
