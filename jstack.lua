@@ -672,9 +672,6 @@ do
 
 		-- "Lua Foreign Interface"
 
-		-- TODO: Something to construct Lua functions.
-		-- TODO: Something to install into a Lua table.
-
 		r['_G'] = lib.make_builtin('_G', 'stdlfi',
 			function(caller, env, stack)
 				stack[#stack + 1] = lib.make_foreign(caller, _G)

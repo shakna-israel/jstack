@@ -1,0 +1,13 @@
+~
+The stdlfi library allows interop with Lua.
+~
+
+assert: import: stdlfi
+
+stdlfi.get: stdlfi._G: string
+print: dupe!
+
+stdlfi.get: swap: lower
+print: dupe!
+
+print: stdlfi.type!
