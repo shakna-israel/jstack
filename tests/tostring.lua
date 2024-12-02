@@ -123,7 +123,8 @@ if type(jit) == 'table' then
 		assert(p)
 		local s = jstack.make_foreign(nil, p)
 
-		assert(jstack.tostring(s) == "foreign<nil:nil:nil>")
+		assert(jstack.tostring(s):sub(1, 21) == "foreign<nil:nil:nil>(")
+		assert(jstack.tostring(s):sub(-1) == ")")
 
 		ffi.C.free(p)
 	end
@@ -132,7 +133,8 @@ if type(jit) == 'table' then
 		assert(type(ffi.C) == "userdata")
 		local s = jstack.make_foreign(nil, ffi.C)
 
-		assert(jstack.tostring(s) == "foreign<nil:nil:nil>")
+		assert(jstack.tostring(s):sub(1, 21) == "foreign<nil:nil:nil>(")
+		assert(jstack.tostring(s):sub(-1) == ")")
 
 		assert(jstack.to_lua(s) == ffi.C)
 	end
