@@ -337,4 +337,103 @@ do
 	-- TODO: actual behaviour
 end
 
+do
+	local f = jstack.stdlib()['version']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['+']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['add']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['-']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['take']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['*']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['multiply']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['divide']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
+do
+	local f = jstack.stdlib()['/']
+	assert(f)
+	assert(f.chunk == "stdlib")
+	assert(f.content.type == "builtin")
+	assert(f.help)
+	assert(f.content.value)
+
+	-- TODO: actual behaviour
+end
+
 -- TODO: Other functions as we add them.

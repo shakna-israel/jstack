@@ -875,6 +875,7 @@ using the argument list as a stack, and then unpacks and returns the stack.
 				new_env['let'] = stdlib['let']
 				new_env['cond'] = stdlib['cond']
 				new_env['clear'] = stdlib['clear']
+				new_env['version'] = stdlib['version']
 				new_env[#new_env + 1] = {}
 
 				local new_stack = {}
@@ -925,6 +926,7 @@ Errors from parsing and evaluation are propagated.
 				new_env['let'] = stdlib['let']
 				new_env['cond'] = stdlib['cond']
 				new_env['clear'] = stdlib['clear']
+				new_env['version'] = stdlib['version']
 				new_env[#new_env + 1] = {}
 
 				local new_stack = {}
@@ -1093,6 +1095,14 @@ Else, pushes a symbol equal to the type of the error.]]
 
 	lib.stdlib = function()
 		local r = {}
+
+		r['version'] = lib.make_builtin('version', 'stdlib',
+			function(caller, env, stack)
+				stack[#stack + 1] = lib.make_symbol(caller, (concat or table.concat)(lib.version, "."))
+				return true
+			end,
+			"Pushes a symbol, containing the version of the currently executing jstack system."
+		)
 
 		r['clear'] = lib.make_builtin("clear", "stdlib",
 			function(caller, env, stack)
@@ -2091,6 +2101,157 @@ cond! {
 			[[Reverses the order of an expression.
 If given nothing or a non-expression, acts as a no-op.]]
 		)
+
+		r['+'] = lib.make_builtin('+', 'stdlib',
+			function(caller, env, stack)
+				local a = table.remove(stack, #stack) or lib.make_nil(caller)
+				local b = table.remove(stack, #stack) or lib.make_nil(caller)
+
+
+				if a.content.type ~= b.content.type then
+					stack[#stack + 1] = lib.make_error(caller, "Type", b)
+					return true
+				end
+
+				if a.content.type ~= "integer" and a.content.type ~= "float" then
+					stack[#stack + 1] = lib.make_error(caller, "Type", b)
+					return true
+				end
+
+				if a.content.type == "integer" then
+					stack[#stack + 1] = lib.make_integer(caller, a.content.value + b.content.value)
+					return true
+				end
+
+				if a.content.type == "float" then
+					stack[#stack + 1] = lib.make_float(caller, a.content.value + b.content.value)
+					return true
+				end
+
+				return false
+			end,
+			[[Pops two values from the stack.
+If the values differ in type, pushes an error<Type>.
+If the values are not of integer or float types, pushes an error<Type>.
+Otherwise performs an arithmetic addition, and pushes the result to the stack.]]
+		)
+		r['add'] = r['+']
+
+		r['-'] = lib.make_builtin('-', 'stdlib',
+			function(caller, env, stack)
+				local a = table.remove(stack, #stack) or lib.make_nil(caller)
+				local b = table.remove(stack, #stack) or lib.make_nil(caller)
+
+
+				if a.content.type ~= b.content.type then
+					stack[#stack + 1] = lib.make_error(caller, "Type", b)
+					return true
+				end
+
+				if a.content.type ~= "integer" and a.content.type ~= "float" then
+					stack[#stack + 1] = lib.make_error(caller, "Type", b)
+					return true
+				end
+
+				if a.content.type == "integer" then
+					stack[#stack + 1] = lib.make_integer(caller, a.content.value - b.content.value)
+					return true
+				end
+
+				if a.content.type == "float" then
+					stack[#stack + 1] = lib.make_float(caller, a.content.value - b.content.value)
+					return true
+				end
+
+				return false
+			end,
+			[[Pops two values from the stack.
+If the values differ in type, pushes an error<Type>.
+If the values are not of integer or float types, pushes an error<Type>.
+Otherwise performs an arithmetic subtraction, and pushes the result to the stack.]]
+		)
+		r['take'] = r['-']
+
+		r['*'] = lib.make_builtin('*', 'stdlib',
+			function(caller, env, stack)
+				local a = table.remove(stack, #stack) or lib.make_nil(caller)
+				local b = table.remove(stack, #stack) or lib.make_nil(caller)
+
+
+				if a.content.type ~= b.content.type then
+					stack[#stack + 1] = lib.make_error(caller, "Type", b)
+					return true
+				end
+
+				if a.content.type ~= "integer" and a.content.type ~= "float" then
+					stack[#stack + 1] = lib.make_error(caller, "Type", b)
+					return true
+				end
+
+				if a.content.type == "integer" then
+					stack[#stack + 1] = lib.make_integer(caller, a.content.value * b.content.value)
+					return true
+				end
+
+				if a.content.type == "float" then
+					stack[#stack + 1] = lib.make_float(caller, a.content.value * b.content.value)
+					return true
+				end
+
+				return false
+			end,
+			[[Pops two values from the stack.
+If the values differ in type, pushes an error<Type>.
+If the values are not of integer or float types, pushes an error<Type>.
+Otherwise performs an arithmetic multiplication, and pushes the result to the stack.]]
+		)
+		r['multiply'] = r['*']
+
+		r['/'] = lib.make_builtin('/', 'stdlib',
+			function(caller, env, stack)
+				local a = table.remove(stack, #stack) or lib.make_nil(caller)
+				local b = table.remove(stack, #stack) or lib.make_nil(caller)
+
+
+				if a.content.type ~= b.content.type then
+					stack[#stack + 1] = lib.make_error(caller, "Type", b)
+					return true
+				end
+
+				if a.content.type ~= "integer" and a.content.type ~= "float" then
+					stack[#stack + 1] = lib.make_error(caller, "Type", b)
+					return true
+				end
+
+				if a.content.type == "integer" then
+					if b.content.value == 0 then
+						stack[#stack + 1] = lib.make_integer(caller, 0)
+						return true
+					end
+
+					stack[#stack + 1] = lib.make_integer(caller, a.content.value / b.content.value)
+					return true
+				end
+
+				if a.content.type == "float" then
+					if b.content.value == 0 then
+						stack[#stack + 1] = lib.make_float(caller, 0)
+						return true
+					end
+
+					stack[#stack + 1] = lib.make_float(caller, a.content.value / b.content.value)
+					return true
+				end
+
+				return false
+			end,
+			[[Pops two values from the stack.
+If the values differ in type, pushes an error<Type>.
+If the values are not of integer or float types, pushes an error<Type>.
+If the second value is a zero, then a zero of the same type is pushed to the stack.
+Otherwise performs an arithmetic division, and pushes the result to the stack.]]
+		)
+		r['divide'] = r['/']
 
 		return r
 	end
