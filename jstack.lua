@@ -2253,6 +2253,78 @@ Otherwise performs an arithmetic division, and pushes the result to the stack.]]
 		)
 		r['divide'] = r['/']
 
+		r['|x|'] = lib.make_builtin('|x|', 'stdlib',
+			function(caller, env, stack)
+				local a = table.remove(stack, #stack) or lib.make_nil(caller)
+
+				if not math then
+					local r = pcall{require, "math"}
+					if not r[1] then
+						stack[#stack + 1] = lib.make_error(a, "Import", caller)
+						return true
+					else
+						math = r[2]
+					end
+				end
+
+				if a.content.type == "integer" then
+					stack[#stack + 1] = lib.make_integer(caller, math.abs(a.content.value))
+					return true
+				end
+
+				if a.content.type == "float" then
+					stack[#stack + 1] = lib.make_float(caller, math.abs(a.content.value))
+					return true
+				end
+
+				stack[#stack + 1] = lib.make_error(a or caller, "Type", caller)
+				return true
+			end,
+			[[Pops one value from the stack.
+If the `math` library is not available to the host, pushes an error<Import>.
+If the value is neither an integer nor float, then pushes error<Type>.
+Otherwise pushes a value of the same type, equivalent to an absolute value of the given value.]]
+		)
+		r['absolute'] = r['|x|']
+
+		r['cos^-1'] = lib.make_builtin('cos^-1', 'stdlib',
+			function(caller, env, stack)
+				local a = table.remove(stack, #stack) or lib.make_nil(caller)
+
+				if not math then
+					local r = pcall{require, "math"}
+					if not r[1] then
+						stack[#stack + 1] = lib.make_error(a, "Import", caller)
+						return true
+					else
+						math = r[2]
+					end
+				end
+
+				if a.content.type == "integer" then
+					stack[#stack + 1] = lib.make_integer(caller, math.acos(a.content.value))
+					return true
+				end
+
+				if a.content.type == "float" then
+					stack[#stack + 1] = lib.make_float(caller, math.acos(a.content.value))
+					return true
+				end
+
+				stack[#stack + 1] = lib.make_error(a or caller, "Type", caller)
+				return true
+			end,
+			[[Pops one value from stack.
+If the `math` library is not available to the host, pushes an error<Import>.
+If the value is neither an integer nor float, then pushes error<Type>.
+Otherwise pushes a value of the same type, equivalent to the arc cosine of the given value, in radians.]]
+		)
+		r['acos'] = r['cos^-1']
+
+		-- TODO: math lib stuff.
+
+		-- TODO: "Infix"ish operators.
+
 		return r
 	end
 
