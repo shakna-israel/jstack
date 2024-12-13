@@ -3,6 +3,9 @@ TARGETS+=lua5.4
 TARGETS+=lua5.3
 TARGETS+=lua5.2
 TARGETS+=lua5.1
+ifdef EXTRA_TARGET
+TARGETS+=$(EXTRA_TARGET)
+endif
 
 test: $(TARGETS)
 
@@ -19,6 +22,9 @@ lua5.2:
 	find tests -depth -type f -print0 | tr '\n' '\0' | xargs -0 -n1 -t $@
 
 lua5.1:
+	find tests -depth -type f -print0 | tr '\n' '\0' | xargs -0 -n1 -t $@
+
+$(EXTRA_TARGET):
 	find tests -depth -type f -print0 | tr '\n' '\0' | xargs -0 -n1 -t $@
 
 install: jstack.lua
