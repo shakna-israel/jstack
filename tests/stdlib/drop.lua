@@ -12,6 +12,24 @@ do
 	assert(f.content.type == "builtin")
 	assert(f.help)
 	assert(f.content.value)
+end
 
-	-- TODO: actual behaviour
+do
+	local stack = {}
+	assert(jstack.eval(jstack.parse("drop: a"), {jstack.stdlib()}, stack))
+	assert(#stack == 0)
+end
+
+do
+	local stack = {}
+	assert(jstack.eval(jstack.parse("drop: a i10"), {jstack.stdlib()}, stack))
+	assert(#stack == 1)
+	assert(stack[1].content.type == "integer")
+	assert(stack[1].content.value == 10)
+end
+
+do
+	local stack = {}
+	assert(jstack.eval(jstack.parse("drop: drop: a i10"), {jstack.stdlib()}, stack))
+	assert(#stack == 0)
 end
