@@ -20,11 +20,11 @@ sources:
 tasks:
   - prep_luau: |
       git clone https://github.com/luau-lang/luau
-      cd luau-lang
+      cd luau
       make config=release luau luau-analyze
   - test: |
       cd jstack
-      make -j$(nproc) EXTRA_TARGET=../luau-lang/luau
+      make -j$(nproc) EXTRA_TARGET=../luau/luau
   - testdoc: |
       cd jstack/book
       make book.pdf
