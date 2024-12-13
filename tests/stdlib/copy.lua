@@ -12,6 +12,13 @@ do
 	assert(f.content.type == "builtin")
 	assert(f.help)
 	assert(f.content.value)
+end
 
-	-- TODO: actual behaviour
+do
+	local stack = {jstack.make_symbol(nil, true)}
+	assert(stack[1].content.type == "symbol")
+	assert(stack[1].content.value == "true")
+	assert(jstack.eval(jstack.parse("copy!"), {jstack.stdlib()}, stack))
+	assert(#stack == 1)
+	assert(stack[1].content.value == "true")
 end
