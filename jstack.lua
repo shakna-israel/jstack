@@ -2283,7 +2283,8 @@ Otherwise performs an arithmetic division, and pushes the result to the stack.]]
 			[[Pops one value from the stack.
 If the `math` library is not available to the host, pushes an error<Import>.
 If the value is neither an integer nor float, then pushes error<Type>.
-Otherwise pushes a value of the same type, equivalent to an absolute value of the given value.]]
+Otherwise pushes a value of the same type, equivalent to an absolute value of the given value.
+e.g. i-10 becomes i10]]
 		)
 		r['absolute'] = r['|x|']
 
