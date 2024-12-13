@@ -18,7 +18,7 @@ packages:
 sources:
   - https://git.sr.ht/~shakna/jstack
 tasks:
-  - prep_luau:
+  - prep_luau: |
       git clone https://github.com/luau-lang/luau
       cd luau-lang
       make config=release luau luau-analyze
