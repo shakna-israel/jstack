@@ -1920,9 +1920,19 @@ no increment will occur, and that value will be taken instead.]]
 
 		r['foreach'] = lib.make_builtin('foreach', 'stdlib',
 			function(caller, env, stack)
-				local name = table.remove(stack, #stack)
-				local list = table.remove(stack, #stack)
-				local body = table.remove(stack, #stack)
+				local name = table.remove(stack, #stack) or lib.make_nil(caller)
+				local list = table.remove(stack, #stack) or lib.make_nil(caller)
+				local body = table.remove(stack, #stack) or lib.make_nil(caller)
+
+				if list.content.type ~= "expression" then
+					stack[#stack + 1] = lib.make_error(range, "Type")
+					return true
+				end
+
+				if body.content.type ~= "expression" then
+					stack[#stack + 1] = lib.make_error(range, "Type")
+					return true
+				end
 
 				local len = #env
 				env[#env+1] = {}
@@ -1948,7 +1958,9 @@ no increment will occur, and that value will be taken instead.]]
 
 				return true
 			end,
-			[[TODO]]
+			[[Pops a symbol, and two expressions from the stack.
+If any of the types does not match, pushes an error<Type>.
+The symbol is bound to each item in the first expression, and the second expression is executed for each.]]
 		)
 
 		r['if'] = lib.make_builtin('if', 'stdlib',
