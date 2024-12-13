@@ -12,6 +12,34 @@ do
 	assert(f.content.type == "builtin")
 	assert(f.help)
 	assert(f.content.value)
+end
 
-	-- TODO: actual behaviour
+do
+	local stack = {jstack.make_error(nil, "Type", nil)}
+	assert(jstack.eval(jstack.parse("assert!"), {jstack.stdlib()}, stack) == false)
+	assert(#stack == 0)	
+end
+
+do
+	local stack = {}
+	assert(jstack.eval(jstack.parse("assert!"), {jstack.stdlib()}, stack) == false)
+	assert(#stack == 0)	
+end
+
+do
+	local stack = {}
+	assert(jstack.eval(jstack.parse("assert: nil"), {jstack.stdlib()}, stack) == false)
+	assert(#stack == 0)	
+end
+
+do
+	local stack = {}
+	assert(jstack.eval(jstack.parse("assert: false"), {jstack.stdlib()}, stack) == false)
+	assert(#stack == 0)	
+end
+
+do
+	local stack = {}
+	assert(jstack.eval(jstack.parse("assert: hello"), {jstack.stdlib()}, stack))
+	assert(#stack == 0)	
 end

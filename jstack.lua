@@ -1188,11 +1188,13 @@ Appends a newline to the end of the output.]])
 				local target = table.remove(stack, #stack)
 				if target == nil or target.content.type == "error" then
 					return false, lib.make_error(target or caller, target or "Critical")
+				elseif target.content.type == "symbol" and (target.content.value == "false" or target.content.value == "nil") then
+					return false, lib.make_error(target or caller, target or "Critical")
 				end
 				return true
 			end,
-			[[If the top value on the stack is not an error, it is popped.
-If the stack is empty, or the top value was an error, then a Critical is thrown.]]
+			[[If the top value on the stack is not an error, `nil` or `false`, it is popped.
+If the stack is empty, or the top value was an error, `nil` or `false, then a Critical is thrown.]]
 		)
 
 		r['type'] = lib.make_builtin('type', 'stdlib',
