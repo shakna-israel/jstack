@@ -17,14 +17,17 @@ packages:
   - texlive-latex-extra
 sources:
   - https://git.sr.ht/~shakna/jstack
+  - https://github.com/luau-lang/luau
 tasks:
   - prep_luau: |
-      git clone https://github.com/luau-lang/luau
       cd luau
       make config=release luau luau-analyze
   - test: |
       cd jstack
-      make EXTRA_TARGET=../luau/luau
+      make -j $(nproc)
+  - test_luau: |
+      cd jstack
+      make EXTRA_TARGET=./$(realpath ../luau/luau)
   - testdoc: |
       cd jstack/book
       make book.pdf
