@@ -19,6 +19,17 @@ do
 	assert(stack[1].content.type == "symbol")
 	assert(stack[1].content.value == "true")
 	assert(jstack.eval(jstack.parse("copy!"), {jstack.stdlib()}, stack))
+	assert(#stack == 2)
+	assert(stack[1] ~= stack[2])
+	assert(stack[2].content.type == "symbol")
+	assert(stack[2].content.value == "true")
+end
+
+do
+	local stack = {}
+	assert(#stack == 0)
+	assert(jstack.eval(jstack.parse("copy!"), {jstack.stdlib()}, stack))
 	assert(#stack == 1)
-	assert(stack[1].content.value == "true")
+	assert(stack[1].content.type == "symbol")
+	assert(stack[1].content.value == "nil")
 end
