@@ -42,6 +42,19 @@ do
 
 	lib.version = {0,0,0}
 
+	-- Luau compat:
+	if not io then
+		io = {}
+	end
+	if not io.open then
+		io.open = function(n) return nil end
+	end
+
+	if not os then
+		os = {}
+	end
+	getenv = os.getenv or function(n) return nil end
+
 	-- Marked symbols, that begin and end with something.
 	local marker = {
 		['{'] = {'}', 'e'},
@@ -600,7 +613,7 @@ do
 			return try
 		end
 
-		local dir = os.getenv("APPDATA")
+		local dir = getenv("APPDATA")
 		if dir then
 			try = string.format("%s/%s.stk", dir, name)
 			f = io.open(try)
@@ -616,7 +629,7 @@ do
 			end
 		end
 
-		local dir = os.getenv("XDG_DATA_HOME")
+		local dir = getenv("XDG_DATA_HOME")
 		if dir then
 			try = string.format("%s/jstack/%s.stk", dir, name)
 			f = io.open(try)
@@ -632,7 +645,7 @@ do
 			end
 		end
 
-		local dir = os.getenv("HOME")
+		local dir = getenv("HOME")
 		if dir then
 			try = string.format("%s/.share/local/jstack/%s.stk", dir, name)
 			f = io.open(try)
@@ -648,7 +661,7 @@ do
 			end
 		end
 
-		local dir = os.getenv("HOME")
+		local dir = getenv("HOME")
 		if dir then
 			try = string.format("%s/.jstack/%s.stk", dir, name)
 			f = io.open(try)
@@ -1078,11 +1091,11 @@ Else, pushes a symbol equal to the type of the error.]]
 
 	lib.sysenv = function()
 		local environ = {}
-		if os.getenv then
+		if getenv then
 			setmetatable(environ, {
 				__index = function(self, k)
 					if k:sub(1, 7) == "environ" then
-						local w = os.getenv(k:sub(9))
+						local w = getenv(k:sub(9))
 						if w then
 							return lib.make_string(nil, w)
 						end
@@ -2567,7 +2580,7 @@ Otherwise pushes a value of the same type, equivalent to the arc cosine of the g
 	end
 
 	do
-		if debug and (debug.getinfo(3) == nil) then
+		if debug and debug.getinfo and (debug.getinfo(3) == nil) then
 			local run_version = function(com)
 				return string.format("%s %s", com, (concat or table.concat)(lib.version, "."))
 			end

@@ -26,7 +26,10 @@ lua5.1:
 	find tests -depth -type f -print0 | tr '\n' '\0' | xargs -0 -n1 -t $@
 
 $(EXTRA_TARGET):
+	#Luau has a different require preference, so we'll just cp the file where it expects:
+	echo "tests/stdlib/ tests/lib/" | xargs -n 1 cp -v jstack.lua
 	find tests -depth -type f -print0 | tr '\n' '\0' | xargs -0 -n1 -t /$@
+	rm tests/*/jstack.lua
 
 install: jstack.lua
 	/usr/bin/install -m 755 -T jstack.lua /usr/local/bin/jstack
