@@ -1824,8 +1824,8 @@ Neither body nor check are evaluated in a new scope - their current environment 
 
 		r['for'] = lib.make_builtin('for', 'stdlib',
 			function(caller, env, stack)
-				local range = table.remove(stack, #stack)
-				local body = table.remove(stack, #stack)
+				local range = table.remove(stack, #stack) or lib.make_nil(caller)
+				local body = table.remove(stack, #stack) or lib.make_nil(caller)
 
 				if range.content.type ~= 'expression' then
 					stack[#stack+1] = lib.make_error(range, "Type", caller)
@@ -1849,7 +1849,7 @@ Neither body nor check are evaluated in a new scope - their current environment 
 				local name = table.remove(stack, #stack)
 				local begin_pos = table.remove(stack, #stack)
 				local end_pos = table.remove(stack, #stack)
-				local increment = table.remove(stack, #stack) or make_integer(range, 1)
+				local increment = table.remove(stack, #stack) or lib.make_integer(range, 1)
 
 				if not end_pos then
 					stack[#stack + 1] = lib.make_error(range, "Value")
@@ -1873,10 +1873,13 @@ Neither body nor check are evaluated in a new scope - their current environment 
 						return false, catch[2]
 					end
 
-					local installed = env[check_len][name.content.value]
+					-- Copy, so we don't hit reference being manipulated:
+					local installed = table_copy(env[check_len][name.content.value])
 
 					-- TODO: Use the add operator here instead.
 					installed.content.value = (installed.content.value) + (increment.content.value)
+
+					env[check_len][name.content.value] = installed
 
 					local current = lib.lookup(range, name, env)
 					-- TODO: Use the equal operator here instead.

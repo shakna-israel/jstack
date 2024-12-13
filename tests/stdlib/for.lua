@@ -12,6 +12,105 @@ do
 	assert(f.content.type == "builtin")
 	assert(f.help)
 	assert(f.content.value)
+end
 
-	-- TODO: actual behaviour
+do
+	local stack = {}
+	local prog = [==[
+	for!
+	]==]
+	assert(jstack.eval(jstack.parse(prog), {jstack.stdlib()}, stack))
+	assert(#stack == 1)
+	assert(stack[1].content.type == "error")
+	assert(stack[1].content.value == "Type")
+end
+
+do
+	local stack = {}
+	local prog = [==[
+	for! a b
+	]==]
+	assert(jstack.eval(jstack.parse(prog), {jstack.stdlib()}, stack))
+	assert(#stack == 1)
+	assert(stack[1].content.type == "error")
+	assert(stack[1].content.value == "Type")
+end
+
+do
+	local stack = {}
+	local prog = [==[
+	for! i10 f20
+	]==]
+	assert(jstack.eval(jstack.parse(prog), {jstack.stdlib()}, stack))
+	assert(#stack == 1)
+	assert(stack[1].content.type == "error")
+	assert(stack[1].content.value == "Type")
+end
+
+do
+	local stack = {}
+	local prog = [==[
+	for! {} {}
+	]==]
+	assert(jstack.eval(jstack.parse(prog), {jstack.stdlib()}, stack))
+	assert(#stack == 1)
+	assert(stack[1].content.type == "error")
+	assert(stack[1].content.value == "Value")
+end
+
+do
+	local stack = {}
+	local prog = [==[
+	{
+
+	}
+	for! {i}
+	]==]
+	assert(jstack.eval(jstack.parse(prog), {jstack.stdlib()}, stack))
+	assert(#stack == 1)
+	assert(stack[1].content.type == "error")
+	assert(stack[1].content.value == "Value")
+end
+
+do
+	local stack = {}
+	local prog = [==[
+	{
+
+	}
+	for! {i i10}
+	]==]
+	assert(jstack.eval(jstack.parse(prog), {jstack.stdlib()}, stack))
+	assert(#stack == 1)
+	assert(stack[1].content.type == "error")
+	assert(stack[1].content.value == "Value")
+end
+
+do
+	local stack = {}
+	local prog = [==[
+	{
+
+	}
+	for! {i i10 i20}
+	]==]
+	assert(jstack.eval(jstack.parse(prog), {jstack.stdlib()}, stack))
+	assert(#stack == 0)
+end
+
+do
+	-- Have to copy the value, as references get manipulated:
+	local stack = {}
+	local prog = [==[
+	{
+		swap: drop: copy: i$
+	}
+	for! {i i10 i20}
+	]==]
+	assert(jstack.eval(jstack.parse(prog), {jstack.stdlib()}, stack))
+	assert(#stack == 11)
+	for i=1, 10 do
+		assert(stack[i].content.type == "integer")
+		assert(stack[i].content.value == i + 9)
+	end
 end
