@@ -43,17 +43,8 @@ do
 	lib.version = {0,0,0}
 
 	-- Luau compat:
-	if not io then
-		io = {}
-	end
-	if not io.open then
-		io.open = function(n) return nil end
-	end
-
-	if not os then
-		os = {}
-	end
-	getenv = os.getenv or function(n) return nil end
+	local io_open = (io and io.open) or function(n) return nil end
+	local os_getenv = os.getenv or function(n) return nil end
 
 	-- Marked symbols, that begin and end with something.
 	local marker = {
@@ -595,14 +586,14 @@ do
 		end
 
 		local try = name
-		local f = io.open(try)
+		local f = io_open(try)
 		if f then
 			f:close()
 			return try
 		end
 
 		try = string.format("%s.stk", name)
-		f = io.open(try)
+		f = io_open(try)
 		if f then
 			f:close()
 			return try
@@ -613,10 +604,10 @@ do
 			return try
 		end
 
-		local dir = getenv("APPDATA")
+		local dir = os_getenv("APPDATA")
 		if dir then
 			try = string.format("%s/%s.stk", dir, name)
-			f = io.open(try)
+			f = io_open(try)
 			if f then
 				f:close()
 				return try
@@ -629,10 +620,10 @@ do
 			end
 		end
 
-		local dir = getenv("XDG_DATA_HOME")
+		local dir = os_getenv("XDG_DATA_HOME")
 		if dir then
 			try = string.format("%s/jstack/%s.stk", dir, name)
-			f = io.open(try)
+			f = io_open(try)
 			if f then
 				f:close()
 				return try
@@ -645,10 +636,10 @@ do
 			end
 		end
 
-		local dir = getenv("HOME")
+		local dir = os_getenv("HOME")
 		if dir then
 			try = string.format("%s/.share/local/jstack/%s.stk", dir, name)
-			f = io.open(try)
+			f = io_open(try)
 			if f then
 				f:close()
 				return try
@@ -661,10 +652,10 @@ do
 			end
 		end
 
-		local dir = getenv("HOME")
+		local dir = os_getenv("HOME")
 		if dir then
 			try = string.format("%s/.jstack/%s.stk", dir, name)
-			f = io.open(try)
+			f = io_open(try)
 			if f then
 				f:close()
 				return try
@@ -925,7 +916,7 @@ Errors from parsing and evaluation are propagated.
 				local fname = table.remove(stack, #stack)
 				local source = ""
 				if fname then
-					local f = io.open(tostring(fname.content.value))
+					local f = io_open(tostring(fname.content.value))
 					if f then
 						source = f:read("*all")
 					end
@@ -1091,11 +1082,11 @@ Else, pushes a symbol equal to the type of the error.]]
 
 	lib.sysenv = function()
 		local environ = {}
-		if getenv then
+		if os_getenv then
 			setmetatable(environ, {
 				__index = function(self, k)
 					if k:sub(1, 7) == "environ" then
-						local w = getenv(k:sub(9))
+						local w = os_getenv(k:sub(9))
 						if w then
 							return lib.make_string(nil, w)
 						end
@@ -1236,7 +1227,7 @@ If the stack is empty, symbol is returned, as if it were `nil`.]]
 				else
 					-- Find something to import instead of a builtin:
 					local environ = {lib.stdlib()}
-					local f = io.open(lib.guess_filepath(target.content.value, caller.chunk))
+					local f = io_open(lib.guess_filepath(target.content.value, caller.chunk))
 					if f then
 						local catch = {lib.eval(lib.parse(f:read("*all")), environ)}
 						if not catch[1] then
@@ -2640,7 +2631,7 @@ Otherwise pushes a value of the same type, equivalent to the arc cosine of the g
 				end
 
 				for idx, argument in ipairs(arg) do
-					local f = io.open(argument)
+					local f = io_open(argument)
 					local r = {lib.eval(lib.parse(f:read("*all"), argument), {lib.sysenv(), lib.stdlib()})}
 					f:close()
 					if not r[1] then
