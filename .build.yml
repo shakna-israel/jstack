@@ -19,9 +19,9 @@ sources:
   - https://git.sr.ht/~shakna/jstack
 tasks:
   - prep_luau:
-    git clone https://github.com/luau-lang/luau
-    cd luau-lang
-    make config=release luau luau-analyze
+      git clone https://github.com/luau-lang/luau
+      cd luau-lang
+      make config=release luau luau-analyze
   - test: |
       cd jstack
       make -j$(nproc) EXTRA_TARGET=../luau-lang/luau
