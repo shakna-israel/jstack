@@ -24,7 +24,7 @@ tasks:
       make config=release luau luau-analyze
   - test: |
       cd jstack
-      make -j$(nproc) EXTRA_TARGET=../luau/luau
+      make EXTRA_TARGET=../luau/luau
   - testdoc: |
       cd jstack/book
       make book.pdf

@@ -24,8 +24,10 @@ lua5.2:
 lua5.1:
 	find tests -depth -type f -print0 | tr '\n' '\0' | xargs -0 -n1 -t $@
 
+ifdef EXTRA_TARGET
 $(EXTRA_TARGET):
 	find tests -depth -type f -print0 | tr '\n' '\0' | xargs -0 -n1 -t $@
+endif
 
 install: jstack.lua
 	/usr/bin/install -m 755 -T jstack.lua /usr/local/bin/jstack
