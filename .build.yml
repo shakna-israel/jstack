@@ -18,6 +18,8 @@ packages:
 sources:
   - https://git.sr.ht/~shakna/jstack
   - https://github.com/luau-lang/luau
+artifacts:
+  - jstack/jstack-release.tar.gz
 tasks:
   - prep_luau: |
       cd luau
@@ -31,3 +33,6 @@ tasks:
   - testdoc: |
       cd jstack/book
       make book.pdf
+  - release: |
+      cd jstack
+      bash release.sh
