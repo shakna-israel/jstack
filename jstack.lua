@@ -1847,7 +1847,12 @@ e.g.
 						return true
 					end
 				elseif cast.content.value == "interrupt" then
-					stack[#stack + 1] = lib.make_error(caller, "Type", target)
+					local datum = table_copy(target)
+
+					datum.content.type = 'interrupt'
+					datum.content.value = "!"
+
+					stack[#stack + 1] = datum
 					return true
 				elseif cast.content.value == "foreign" then
 					stack[#stack + 1] = lib.make_error(caller, "Type", target)
