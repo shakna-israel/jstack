@@ -10,7 +10,7 @@ do
 	assert(s == nil)
 end
 
-if io.open then
+if io and io.open then
 	do
 		local s = jstack.import_lua(nil, "string")
 		assert(s)
