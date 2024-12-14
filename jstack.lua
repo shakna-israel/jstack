@@ -2520,7 +2520,7 @@ Otherwise pushes a value of the same type, equivalent to the arc cosine of the g
 	end
 
 	lib.exec = function(caller, env, stack)
-		local target = table.remove(stack, #stack)
+		local target = table.remove(stack, #stack) or lib.make_nil(caller)
 		if target then
 			if target.content.type == "expression" then
 				local len = #env
@@ -2560,6 +2560,7 @@ Otherwise pushes a value of the same type, equivalent to the arc cosine of the g
 	end
 
 	lib.eval = function(tree, env, stack)
+		local tree = tree or {}
 		local env = env or {}
 		local stack = stack or {}
 		for i=1, #tree do
