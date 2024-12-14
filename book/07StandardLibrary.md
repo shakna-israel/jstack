@@ -14,6 +14,10 @@ e.g.
 
 	nop!
 
+Whilst you often will have no use for this, swapping it in and out of expressions, when manipulating expressions at runtime, is one of the clearer use-cases.
+
+TODO: example
+
 ## stdlib.help
 
 Pops one from stack.

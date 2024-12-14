@@ -48,6 +48,10 @@ However, we could also do that by binding to our local environment:
 	}
 	print: celsius->fahrenheit: f22
 
+The underlying idea of the expressions is extremely similar. So we could just go ahead and generate one, from the other.
+
+TODO: Generate example with stdexpression
+
 ---
 
 TODO: Some standard example code
