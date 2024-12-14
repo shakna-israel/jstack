@@ -3,9 +3,6 @@ assert(jstack)
 
 assert(jstack.cast_bool)
 
---jstack.cast_bool(caller, env, stack)
-
--- TODO
 do
 	local o = jstack.make_nil()
 	local stack = {}
@@ -151,6 +148,39 @@ end
 
 do
 	local o = jstack.make_foreign(nil, nil)
+	local stack = {o}
+	jstack.cast_bool(o, {}, stack)
+	local result = stack[#stack]
+	assert(result)
+	assert(result.content)
+	assert(result.content.type == "symbol")
+	assert(result.content.value == "true")
+end
+
+do
+	local o = jstack.make_builtin("thing", nil, function() end)
+	local stack = {o}
+	jstack.cast_bool(o, {}, stack)
+	local result = stack[#stack]
+	assert(result)
+	assert(result.content)
+	assert(result.content.type == "symbol")
+	assert(result.content.value == "true")
+end
+
+do
+	local o = jstack.parse("{}")[1]
+	local stack = {o}
+	jstack.cast_bool(o, {}, stack)
+	local result = stack[#stack]
+	assert(result)
+	assert(result.content)
+	assert(result.content.type == "symbol")
+	assert(result.content.value == "true")
+end
+
+do
+	local o = jstack.make_expression()
 	local stack = {o}
 	jstack.cast_bool(o, {}, stack)
 	local result = stack[#stack]

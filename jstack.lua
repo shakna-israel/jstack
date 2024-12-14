@@ -406,6 +406,25 @@ do
 		end
 	end
 
+	lib.make_expression = function(caller)
+		local token = {}
+		local caller = caller or {}
+		caller.content = caller.content or {}
+		for k, v in pairs(caller) do
+			token[k] = v
+		end
+		token.content = {}
+		for k, v in pairs(caller.content) do
+			token.content[k] = v
+		end
+		token.content.type = "expression"
+
+		local o = lib.parse("{}")[1]
+		token.content.value = o.content.value
+
+		return token
+	end
+
 	lib.make_builtin = function(funcname, chunkname, functor, helpdoc)
 		local funcname = funcname or "unknown"
 		local chunkname = chunkname or "<unknown>"
