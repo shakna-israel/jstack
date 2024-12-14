@@ -443,7 +443,7 @@ do
 	end
 
 	lib.from_lua = function(caller, v, k, name)
-		-- TODO: Convert a Lua primitive to a jstack value.
+		-- Convert a Lua primitive to a jstack value.
 		local k = k or "?"
 		local name = name or "<unknown>"
 
@@ -917,9 +917,16 @@ The expression is then returned to the stack.
 Followed by the item, so the item is at the top of the stack.]])
 
 		-- TODO: seize (popNth)
-		-- TODO: index - get existing item reference, for less expensive modifying
 		-- TODO: insert at position
 		-- TODO: explode - drop the entire expression onto the stack, without modifying it.
+
+		-- TODO: find <value> <expression> (index/`false`)
+			-- copy reference instead of seize that pops.
+
+		-- TODO: contains <value> <expression> (`true`/`false`)
+		
+		-- TODO: index <expression> <value> (value/error<Value>)
+			-- get existing item reference, for less expensive modifying
 
 		-- TODO: with-env (return rebound expression, but not called)
 		-- TODO: with-stack (return rebound expression, but not called)
@@ -1333,7 +1340,11 @@ If the stack is empty, symbol is returned, as if it were `nil`.]]
 				end
 				return true
 			end,
-			"TODO"
+			[[Attempts to import either a jstack file, or a Lua module.
+A string or symbol is popped from the stack, and checked against import paths.
+The first found will be imported into a new environment.
+This will push either a `true` symbol, or an error<Import>.
+It will likely fail if the host Lua does not have filesystem access (such as in Luau).]]
 		)
 
 		r['swap'] = lib.make_builtin("swap", "stdlib",
@@ -1848,7 +1859,10 @@ e.g.
 
 				return false
 			end,
-			[[TODO]]
+			[[Pops two from the stack.
+The first should be a string or symbol, representing the type to attempt to cast to.
+The second should be the value to transform.
+The result, or an error<Type>, is pushed to the stack.]]
 		)
 
 		r['while'] = lib.make_builtin('while', 'stdlib',
