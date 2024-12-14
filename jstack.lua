@@ -2520,6 +2520,8 @@ Otherwise pushes a value of the same type, equivalent to the arc cosine of the g
 	end
 
 	lib.exec = function(caller, env, stack)
+		local env = env or {}
+		local stack = stack or {}
 		local target = table.remove(stack, #stack) or lib.make_nil(caller)
 		if target then
 			if target.content.type == "expression" then
