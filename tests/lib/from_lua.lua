@@ -5,8 +5,6 @@ assert(jstack.from_lua)
 
 -- jstack.from_lua(caller, v, k, name)
 
--- TODO
-
 do
 	local s = jstack.from_lua(nil, "hello", nil, nil)
 	assert(s)
