@@ -863,7 +863,67 @@ using the argument list as a stack, and then unpacks and returns the stack.
 		-- TODO: List stuff for expressions (append, etc)
 		local r = {}
 
-		-- TODO: Also add eval stuff here.
+		r['append'] = lib.make_builtin('append', 'stdexpression',
+			function(caller, env, stack)
+				local target = table.remove(stack, #stack)
+				local value = table.remove(stack, #stack)
+
+				if not target then
+					stack[#stack + 1] = lib.make_error(caller, "Type")
+					return true
+				elseif not value then
+					stack[#stack + 1] = lib.make_error(caller, "Type")
+					return true
+				elseif target.content.type ~= "expression" then
+					stack[#stack + 1] = lib.make_error(target, "Type")
+					return true
+				end
+
+				target.content.value[#target.content.value + 1] = table_copy(value)
+
+				stack[#stack + 1] = target
+				return true
+			end,
+			[[Pops two items from the stack.
+If either item is not given, pushes an error<Type>.
+If the first item is not an expression, pushes an error<Type>.
+Modifies the expression directly, to append a *copy* of the other item to the end.
+*All* references to the expression will be modified.
+Pushes the expression back to the stack on success.]])
+
+		r['pop'] = lib.make_builtin('pop', 'stdexpression',
+			function(caller, env, stack)
+				local target = table.remove(stack, #stack)
+
+				if not target then
+					stack[#stack + 1] = lib.make_error(caller, "Type")
+					return true
+				elseif target.content.type ~= 'expression' then
+					stack[#stack + 1] = lib.make_error(target, "Type")
+					return true
+				end
+
+				local popped = table.remove(target.content.value, #target.content.value) or lib.make_nil(target)
+
+				stack[#stack + 1] = target
+				stack[#stack + 1] = popped
+				return true
+			end,
+			[[Pops an expression from the stack.
+If the item is nonexistent or not an expression, pushes an error<Type>.
+Otherwise, pops the last item from the expression.
+If the expression is empty, the item becomes a `nil` symbol.
+The expression is then returned to the stack.
+Followed by the item, so the item is at the top of the stack.]])
+
+		-- TODO: seize (popNth)
+		-- TODO: index - get existing item reference, for less expensive modifying
+		-- TODO: insert at position
+		-- TODO: explode - drop the entire expression onto the stack, without modifying it.
+
+		-- TODO: with-env (return rebound expression, but not called)
+		-- TODO: with-stack (return rebound expression, but not called)
+		-- TODO: call
 
 		return r
 	end
