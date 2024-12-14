@@ -1,0 +1,36 @@
+let: fahrenheit->celsius {
+	; celsius = (fahrenheit - 32) / 1.8
+	assert: dupe: to: float
+	-: swap: f32
+	/: swap: f1.8
+}
+print: fahrenheit->celsius: f71.6
+
+let: celsius->fahrenheit {
+	;fahrenheit = (celsius * 1.8) + 32
+	assert: dupe: to: float
+	*: swap: f1.8
+	+: f32
+}
+print: celsius->fahrenheit: f22
+
+
+let: fahrenheit->celsius {
+	; celsius = (fahrenheit - 32) / 1.8
+	assert: dupe: to: float
+	let: a
+
+	let: a -: a$ f32
+	/: a$ f1.8
+}
+print: fahrenheit->celsius: f71.6
+
+let: celsius->fahrenheit {
+	;fahrenheit = (celsius * 1.8) + 32
+	assert: dupe: to: float
+	let: a
+
+	*: a$ f1.8
+	+: f32
+}
+print: celsius->fahrenheit: f22

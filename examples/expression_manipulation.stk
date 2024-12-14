@@ -1,0 +1,14 @@
+assert: import: stdexpression
+
+~
+stdexpression.append allows us to add arbitrary values
+to the end of an expression:
+~
+stdexpression.append: {} true
+
+~
+Expressions are not lists. And not functions.
+They're sort of both.
+So now we've added as a list... We can call it.
+~
+print: !

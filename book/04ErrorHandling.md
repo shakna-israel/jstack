@@ -19,6 +19,14 @@ The `stderror.catch` and `stderror.throw` builtins are probably the ones that yo
 
 See the `stderror` library section for more.
 
+A common idiom on importing is:
+
+	assert: import: "thing"
+
+This causes `assert` to either consume the `true` symbol on success, or throw a `error<Critical>` if an `error<Import>` was pushed instead.
+
+This allows you the freedom of optional imports where you may need them. Similar reasoning elsewhere is why errors don't, by default, throw. If you want or need it to throw - assert is your friend.
+
 \vspace*{\fill}
 
 \pagebreak

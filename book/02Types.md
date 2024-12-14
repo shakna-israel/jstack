@@ -220,6 +220,12 @@ The standard libraries are supplied as builtins.
 	print: type: print$
 	> `builtin`
 
+That is to say, a builtin is callable, but completely opaque. You don't get to manipulate them like an expression, but you will make extensive use of them.
+
+\vspace*{\fill}
+
+\pagebreak
+
 ## Errors
 
 An error type is it's own opaque type.
@@ -233,6 +239,17 @@ Various subtypes are common and appear throughout the standard libraries, such a
 However, the `error<Critical>` is treated different than the rest - if it is on the top of the stack after some evaluation is finished, then the interpreter ceases processing and attempts to exit.
 
 Such errors *can* be caught by the `stderror` library, and *must* be, unless you want to crash.
+
+	stderror.catch: {
+		stderror.throw: Critical
+	} error {
+		print: "Caught:"
+		print: error$
+	}
+
+\vspace*{\fill}
+
+\pagebreak
 
 ## Interrupts
 
@@ -259,6 +276,10 @@ There are four interrupts:
 	* Otherwise a `true` symbol is pushed.
 
 * `$` - This interrupt pops a value from the stack, and then examines the environment. Looking from the bottom up, it finds the first matching value, and pushes that to the stack. If not values are found, it pushes a `nil` symbol.
+
+\vspace*{\fill}
+
+\pagebreak
 
 ## Foreign
 
