@@ -2130,7 +2130,7 @@ If the expected expressions are of a different type, pushes an error<Type>.
 		r['cond'] = lib.make_builtin('cond', 'stdlib',
 			function(caller, env, stack)
 				local list = table.remove(stack, #stack)
-				if not list or not list.content.type == 'expression' then
+				if not list or list.content.type ~= 'expression' then
 					stack[#stack + 1] = lib.make_error(list or caller, "Type", caller)
 					return true
 				end
