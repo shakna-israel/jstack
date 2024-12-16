@@ -44,6 +44,20 @@ Example, for Debian-based systems:
 
 	apt install luajit
 
+### Note on Luau:
+
+Whilst `jstack` does run under Luau, that platform is designed to intentionally lack filesystem and C-module access. This means that the resulting `jstack` will also lack those. It won't be able to import most files - only Lua ones.
+
+---
+
+## Install
+
+If you have the dependencies in place, and are running a \*nix based system, simply:
+
+	make install
+
+(Hint: If you get a permission error, you probably need to run as `root`.)
+
 ---
 
 ## Testing
