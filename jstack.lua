@@ -1536,7 +1536,9 @@ An unknown type will push a error<Type>.]]
 			function(caller, env, stack)
 				local target = table.remove(stack, #stack) or lib.make_nil(caller)
 				stack[#stack + 1] = target
-				lib.cast_bool(caller, env, stack)
+				if not lib.cast_bool(caller, env, stack) then
+					return false, stack[#stack]
+				end
 				local result = table.remove(stack, #stack)
 				if result.content.value == "true" then
 					stack[#stack + 1] = lib.make_symbol(caller, "false")
@@ -1563,7 +1565,9 @@ An unknown type will push a error<Type>.]]
 				local b = table.remove(stack, #stack) or lib.make_nil(caller)
 
 				stack[#stack + 1] = a
-				lib.cast_bool(caller, env, stack)
+				if not lib.cast_bool(caller, env, stack) then
+					return false, stack[#stack]
+				end
 				local result = table.remove(stack, #stack)
 				if result.content.value == "true" then
 					stack[#stack + 1] = a
@@ -1571,7 +1575,9 @@ An unknown type will push a error<Type>.]]
 				end
 
 				stack[#stack + 1] = b
-				lib.cast_bool(caller, env, stack)
+				if not lib.cast_bool(caller, env, stack) then
+					return false, stack[#stack]
+				end
 				local result = table.remove(stack, #stack)
 				if result.content.value == "true" then
 					stack[#stack + 1] = b
@@ -1889,7 +1895,9 @@ The result, or an error<Type>, is pushed to the stack.]]
 				else
 					stack[#stack + 1] = check
 				end
-				lib.cast_bool(caller, env, stack)
+				if not lib.cast_bool(caller, env, stack) then
+					return false, stack[#stack]
+				end
 				local pop = table.remove(stack, #stack)
 				check_value = pop.content.value == "true"
 
@@ -1908,7 +1916,9 @@ The result, or an error<Type>, is pushed to the stack.]]
 					else
 						stack[#stack + 1] = check
 					end
-					lib.cast_bool(caller, env, stack)
+					if not lib.cast_bool(caller, env, stack) then
+						return false, stack[#stack]
+					end
 					local pop = table.remove(stack, #stack)
 					check_value = pop.content.value == "true"
 				end
@@ -2092,7 +2102,9 @@ The symbol is bound to each item in the first expression, and the second express
 				if not catch[1] then
 					return false, catch[2]
 				end
-				lib.cast_bool(caller, env, stack)
+				if not lib.cast_bool(caller, env, stack) then
+					return false, stack[#stack]
+				end
 				local pop = table.remove(stack, #stack)
 				check_value = pop.content.value == "true"
 
@@ -2147,7 +2159,9 @@ If the expected expressions are of a different type, pushes an error<Type>.
 					if not catch[1] then
 						return false, catch[2]
 					end
-					lib.cast_bool(caller, env, stack)
+					if not lib.cast_bool(caller, env, stack) then
+						return false, stack[#stack]
+					end
 					local pop = table.remove(stack, #stack)
 					check_value = pop.content.value == "true"
 
@@ -2662,7 +2676,9 @@ Otherwise pushes a value of the same type, equivalent to the arc cosine of the g
 					return false, stack[#stack]
 				elseif tree[i].content.value == '?' then
 					-- Cast to boolean.
-					lib.cast_bool(tree[i], env, stack)
+					if not lib.cast_bool(tree[i], env, stack) then
+						return false, stack[#stack]
+					end
 				end
 			else
 				stack[#stack + 1] = tree[i]
