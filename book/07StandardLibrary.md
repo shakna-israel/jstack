@@ -54,7 +54,7 @@ e.g.
 
 Functionally equivalent to the `$` interrupt.
 
-Pops one symbol from the stack, and finds the currently linked value from the environment.
+Pops one symbol from the stack, and finds the currently linked value from the environment, and pushes a reference of it to the stack.
 
 If nothing is found, pushes a `nil` symbol.
 
@@ -63,6 +63,9 @@ e.g.
 	let: name "James"
 	get: name
 	print!
+	get: name
+	print!
+	> James
 	> James
 
 	print: get: blahgah
