@@ -2106,7 +2106,7 @@ The symbol is bound to each item in the first expression, and the second express
 					return false, stack[#stack]
 				end
 				local pop = table.remove(stack, #stack)
-				check_value = pop.content.value == "true"
+				local check_value = pop.content.value == "true"
 
 				if check_value then
 					local catch = {lib.eval(check_body.content.value, env, stack)}
@@ -2163,7 +2163,7 @@ If the expected expressions are of a different type, pushes an error<Type>.
 						return false, stack[#stack]
 					end
 					local pop = table.remove(stack, #stack)
-					check_value = pop.content.value == "true"
+					local check_value = pop.content.value == "true"
 
 					if check_value then
 						local catch = {lib.eval(expr_body.content.value, env, stack)}
